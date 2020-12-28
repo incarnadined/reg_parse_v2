@@ -21,9 +21,15 @@
     <ClCompile Include="Hive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="NK.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Hive.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NK.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
