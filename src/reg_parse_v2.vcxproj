@@ -140,11 +140,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Hive.cpp" />
+    <ClCompile Include="list.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NK.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Hive.h" />
+    <ClInclude Include="list.h" />
     <ClInclude Include="NK.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
