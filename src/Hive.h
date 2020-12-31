@@ -1,6 +1,9 @@
 #pragma once
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <vector>
+#include <memory>
 
 #include "NK.h"
 
@@ -17,10 +20,12 @@ public:
 	auto GetValue(char* keypath, char* valuename);
 	auto GetValues(char* keypath);
 
-	auto ListSubkeys(char* keypath);
+	int ListSubkeys(std::string keypath);
 
 private:
 	int m_magic_bytes;
 	unsigned int m_root_cell_offset;
+
+	std::shared_ptr<NK> m_root;
 };
 

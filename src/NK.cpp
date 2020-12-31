@@ -2,6 +2,7 @@
 
 NK::NK(std::ifstream* fs, unsigned int offset) : m_offset(offset), m_fs(fs)
 {
+
 	m_fs->seekg(0x1000 + m_offset); // all offsets are relative to the first hbin (located at 0x1000)
 
 	m_fs->read((char*)&m_size, sizeof(int));
@@ -17,15 +18,17 @@ NK::NK(std::ifstream* fs, unsigned int offset) : m_offset(offset), m_fs(fs)
 	m_fs->read((char*)&m_value_offset, sizeof(unsigned int));
 	m_fs->seekg(0x1000 + m_offset + 0x4C);
 	m_fs->read((char*)&m_name_length, sizeof(unsigned short));
+	m_name = new char[m_name_length];
 	m_fs->seekg(0x1000 + m_offset + 0x50);
-	m_fs->read((char*)&m_name, m_name_length);
+	m_fs->read((char*)m_name, m_name_length);
 }
 
 NK::~NK()
 {
+	delete[] m_name;
 }
 
-std::shared_ptr<NK> NK::Tunnel(char* keyname)
+std::shared_ptr<NK> NK::Tunnel(const char* keyname)
 {
 	// finds the next route for the tunnel leading from this key
 	// if this key this function has already been ran for this key, returns the entry from the vector
@@ -43,7 +46,7 @@ std::shared_ptr<NK> NK::Tunnel(char* keyname)
 	{
 		for (int i = 0; i < subkeys.size(); i++)
 		{
-			if (subkeys[i]->m_name == keyname)
+			if (*subkeys[i]->m_name == *keyname)
 			{
 				return subkeys[i];
 			}
@@ -57,12 +60,12 @@ std::shared_ptr<NK> NK::Tunnel(char* keyname)
 
 	std::shared_ptr<NK> return_key;
 	list* list_instance = new list(m_fs, m_subkey_offset);
-	for (int i = 0; i < m_subkey_count; i++)
+	for (unsigned int i = 0; i < m_subkey_count; i++)
 	{
 		std::shared_ptr<NK> temp_subkey = std::make_shared<NK>(m_fs, list_instance->records[i].offset);
 		subkeys.push_back(temp_subkey);
 
-		if (temp_subkey->m_name == keyname)
+		if (*temp_subkey->m_name == *keyname)
 		{
 			return_key = temp_subkey;
 		}

@@ -11,12 +11,14 @@ public:
 	NK(std::ifstream* fs, unsigned int offset);
 	~NK();
 
-private:
-	std::shared_ptr<NK> Tunnel(char* keyname);
+	std::shared_ptr<NK> Tunnel(const char* keyname);
 
+	std::vector<std::shared_ptr<NK>> subkeys;
+	char* m_name;
+
+private:
 	std::ifstream* m_fs;
 	unsigned long long m_offset;
-	std::vector<std::shared_ptr<NK>> subkeys;
 
 	int m_size;
 	unsigned short m_flags;
@@ -26,6 +28,5 @@ private:
 	unsigned int m_value_count;
 	unsigned int m_value_offset;
 	unsigned short m_name_length;
-	char m_name[];
 };
 
