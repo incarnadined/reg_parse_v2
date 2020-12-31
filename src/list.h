@@ -15,8 +15,9 @@ public:
 	list(std::ifstream* fs, unsigned long long offset);
 	~list();
 
-private:
 	std::vector<record> records;
+
+private:
 
 	int m_size;
 	short m_signature;

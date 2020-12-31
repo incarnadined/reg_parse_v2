@@ -14,7 +14,11 @@ list::list(std::ifstream* fs, unsigned long long offset)
 	// the two types differ on their hashing algorithms
 	if (m_signature == 26732 || m_signature == 26220)
 	{
+		record record_instance;
 
+		fs->read((char*)&record_instance, sizeof(record));
+
+		records.push_back(record_instance);
 	}
 }
 

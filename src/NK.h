@@ -1,6 +1,9 @@
 #pragma once
 #include <fstream>
 #include <vector>
+#include <memory>
+
+#include "list.h"
 
 class NK
 {
@@ -9,10 +12,11 @@ public:
 	~NK();
 
 private:
-	NK* Tunnel(char* keyname);
+	std::shared_ptr<NK> Tunnel(char* keyname);
 
+	std::ifstream* m_fs;
 	unsigned long long m_offset;
-	std::vector<NK> subkeys;
+	std::vector<std::shared_ptr<NK>> subkeys;
 
 	int m_size;
 	unsigned short m_flags;
