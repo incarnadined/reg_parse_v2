@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <exception>
 
 #include "NK.h"
 
@@ -23,6 +24,8 @@ public:
 	int ListSubkeys(std::string keypath);
 
 private:
+	std::ifstream fs;
+
 	int m_magic_bytes;
 	unsigned int m_root_cell_offset;
 

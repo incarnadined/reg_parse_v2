@@ -2,13 +2,13 @@
 
 Hive::Hive(const char* filepath) : m_magic_bytes(0), m_root_cell_offset(0)
 {
-	std::ifstream fs;
 	fs.open(filepath, std::ifstream::in | std::ifstream::binary);
 
 	fs.read((char *)&m_magic_bytes, sizeof(int));
 	if (m_magic_bytes != 1718052210)
 	{
 		//ERROR!!! file magic bytes are not regf
+		throw;
 	}
 
 	fs.seekg(0x24);
@@ -38,6 +38,7 @@ auto Hive::GetValue(char* keypath, char* valuename)
 
 auto Hive::GetValues(char* keypath)
 {
+
 }
 
 int Hive::ListSubkeys(std::string keypath)
@@ -50,21 +51,28 @@ int Hive::ListSubkeys(std::string keypath)
 
 	size_t pos = 0;
 	std::string token;
-	while ((pos = keypath.find(delimiter)) != std::string::npos) {
+		while ((pos = keypath.find(delimiter)) != std::string::npos) {
 		token = keypath.substr(0, pos);
 		keys.push_back(token);
 		keypath.erase(0, pos + delimiter.length());
 	}
-	std::cout << keypath << std::endl;
 
+	// remove the root key from the list of keys to find
+	keys.erase(keys.begin());
+
+	// don't look for the imaginary subkey of the final key
 	for (int i = 0; i < keys.size(); i++)
 	{
+		// for each key name, search the previous keys subkey and add that to the end of the list
 		key_pointers.push_back(key_pointers[i]->Tunnel(keys[i].c_str()));
 	}
 
-	for (int i = 0; i < ((key_pointers[key_pointers.size() - 1])->subkeys).size(); i++)
+	// fake call for an *imaginary* subkey to load the subkey vector
+	key_pointers[key_pointers.size()-1]->Tunnel("blank");
+
+	for (int i = 0; i < key_pointers[key_pointers.size() - 1]->subkeys.size(); i++)
 	{
-		std::cout << key_pointers[key_pointers.size() - 1]->subkeys.at(i)->m_name << std::endl;
+		std::cout << key_pointers[key_pointers.size() - 1]->subkeys[i]->m_name << std::endl;
 	}
 
 	return 0;

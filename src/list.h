@@ -23,4 +23,3 @@ private:
 	short m_signature;
 	short m_entries_count;
 };
-

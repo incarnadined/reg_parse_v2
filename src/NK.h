@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <memory>
+#include <iostream>
 
 #include "list.h"
 
