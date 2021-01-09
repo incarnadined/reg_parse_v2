@@ -7,8 +7,8 @@ NK::NK(std::ifstream* fs, unsigned int offset) : m_offset(offset), m_fs(fs)
 	m_fs->read((char*)&m_size, sizeof(int));
 	m_fs->seekg(0x1000 + m_offset + 0x06);
 	m_fs->read((char*)&m_flags, sizeof(unsigned short));
-	m_fs->seekg(0x1000 + m_offset + 0x14);
 	m_fs->read((char*)&m_last_write, sizeof(long long));
+	m_fs->seekg(0x1000 + m_offset + 0x14);
 	m_fs->read((char*)&m_parent_offset, sizeof(unsigned int));
 	m_fs->read((char*)&m_subkey_count, sizeof(unsigned int));
 	m_fs->seekg(0x1000 + m_offset + 0x20);
@@ -47,7 +47,7 @@ std::shared_ptr<NK> NK::Tunnel(const char* keyname)
 	{
 		for (int i = 0; i < subkeys.size(); i++)
 		{
-			if (*subkeys[i]->m_name == *keyname)
+			if (!strcmp(subkeys[i]->m_name, keyname))
 			{
 				return subkeys[i];
 			}

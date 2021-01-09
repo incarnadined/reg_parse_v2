@@ -32,7 +32,7 @@ list::list(std::ifstream* fs, unsigned long long offset)
 		fs->seekg(0x1000 + offset + 0x4);
 
 		//
-		for (int i = 0; i < (m_size - 4) / 4; i++)
+		for (int i = 0; i < (abs(m_size) - 4) / 4; i++)
 		{
 			record record_instance;
 

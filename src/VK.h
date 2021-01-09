@@ -13,6 +13,7 @@ public:
 	~VK();
 
 	char* m_name;
+	unsigned int m_type;
 
 private:
 	std::ifstream* m_fs;
@@ -23,7 +24,5 @@ private:
 	unsigned short m_name_length;
 	unsigned int m_data_length;
 	unsigned int m_data;
-	unsigned int m_type;
 	unsigned short m_flags;
 };
-

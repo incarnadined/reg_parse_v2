@@ -37,6 +37,15 @@ int Hive::GetValue(std::string keypath, char* valuename)
 	// returns a tuple containing data for a specific value from a keypath
 
 	std::shared_ptr<NK> key = ProcessSubkeys(keypath);
+	key->ProcessValues();
+
+	for (int i = 0; i < key->values.size(); i++)
+	{
+		if (!strcmp(key->values[i]->m_name, valuename))
+		{
+			std::cout << key->values[i]->m_name << std::endl;
+		}
+	}
 
 	return 0;
 }
