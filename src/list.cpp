@@ -23,6 +23,27 @@ list::list(std::ifstream* fs, unsigned long long offset)
 			records.push_back(record_instance);
 		}
 	}
+	else // no recognised signature means a data node - m_signature and m_entries_count are garbage now
+	{
+		// structure of a data node is (not including 4 byte size)
+		// 4 bytes pointer
+
+		// seek back to the just after the end of the size
+		fs->seekg(0x1000 + offset + 0x4);
+
+		//
+		for (int i = 0; i < (m_size - 4) / 4; i++)
+		{
+			record record_instance;
+
+			fs->read((char*)&record_instance, sizeof(unsigned int));
+
+			// data nodes don't have hashes, so set the hash variable to -1 (0xFFFFFFFF)
+			record_instance.hash = 0xFFFFFFFF;
+
+			records.push_back(record_instance);
+		}
+	}
 }
 
 list::~list()

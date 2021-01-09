@@ -18,17 +18,19 @@ public:
 	// auto here should be replaced with a data type that contains the value data (struct)
 	auto GetFileData();
 
-	auto GetValue(char* keypath, char* valuename);
-	auto GetValues(char* keypath);
+	int GetValue(std::string keypath, char* valuename);
+	int GetValues(std::string keypath);
 
-	int ListSubkeys(std::string keypath);
+	void GetSubkeys(std::string keypath);
 
 private:
+	std::shared_ptr<NK> ProcessSubkeys(std::string keypath);
+
 	std::ifstream fs;
+	std::shared_ptr<NK> m_root;
 
 	int m_magic_bytes;
 	unsigned int m_root_cell_offset;
 
-	std::shared_ptr<NK> m_root;
 };
 

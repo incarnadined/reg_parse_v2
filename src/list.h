@@ -4,6 +4,7 @@
 
 struct record
 {
+	// if hash is -1 then the list type doesn't have hashes
 	unsigned int offset;
 	int hash;
 };

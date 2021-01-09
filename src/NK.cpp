@@ -8,6 +8,7 @@ NK::NK(std::ifstream* fs, unsigned int offset) : m_offset(offset), m_fs(fs)
 	m_fs->seekg(0x1000 + m_offset + 0x06);
 	m_fs->read((char*)&m_flags, sizeof(unsigned short));
 	m_fs->seekg(0x1000 + m_offset + 0x14);
+	m_fs->read((char*)&m_last_write, sizeof(long long));
 	m_fs->read((char*)&m_parent_offset, sizeof(unsigned int));
 	m_fs->read((char*)&m_subkey_count, sizeof(unsigned int));
 	m_fs->seekg(0x1000 + m_offset + 0x20);
@@ -30,14 +31,14 @@ NK::~NK()
 
 std::shared_ptr<NK> NK::Tunnel(const char* keyname)
 {
-	// finds the next route for the tunnel leading from this key
+	// finds the next subkey from this key
 	// if this key this function has already been ran for this key, returns the entry from the vector
 	// returns a pointer to the subkey with the given name
 	// returns -1 if the key was not found
 
+	// if the key has no subkeys then this key cannot exist
 	if (m_subkey_count == 0)
 	{
-		// if the key has no subkeys then this key cannot exist
 		return std::shared_ptr<NK>();
 	}
 
@@ -74,4 +75,23 @@ std::shared_ptr<NK> NK::Tunnel(const char* keyname)
 
 
 	return std::shared_ptr<NK>();
+}
+
+void NK::ProcessValues()
+{
+	// populate the values vector with the values of this key
+
+	// if the values have already been found or there aren't any, stop here
+	if (m_value_count == 0 || values.size() != 0)
+		return;
+
+	// make the vector big enough to store all of the values
+	values.reserve(m_value_count);
+
+	list* list_instance = new list(m_fs, m_value_offset);
+	for (unsigned int i = 0; i < m_value_count; i++)
+	{
+		std::shared_ptr<VK> temp_value = std::make_shared<VK>(m_fs, list_instance->records[i].offset);
+		values.push_back(temp_value);
+	}
 }

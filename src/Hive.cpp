@@ -32,17 +32,39 @@ auto Hive::GetFileData()
 	// file name
 }
 
-auto Hive::GetValue(char* keypath, char* valuename)
+int Hive::GetValue(std::string keypath, char* valuename)
 {
+	// returns a tuple containing data for a specific value from a keypath
+
+	std::shared_ptr<NK> key = ProcessSubkeys(keypath);
+
+	return 0;
 }
 
-auto Hive::GetValues(char* keypath)
+int Hive::GetValues(std::string keypath)
 {
+	// returns a list of tuples with a tuple for each value of the subkey
 
+	return 0;
 }
 
-int Hive::ListSubkeys(std::string keypath)
+void Hive::GetSubkeys(std::string keypath)
 {
+	// function that prints all of the subkeys of a specific key
+	std::shared_ptr<NK> key = ProcessSubkeys(keypath);
+
+	// fake call for an *imaginary* subkey to load the subkey vector
+	key->Tunnel("blank");
+
+	for (int i = 0; i < key->subkeys.size(); i++)
+	{
+		std::cout << key->subkeys[i]->m_name << std::endl;
+	}
+}
+
+std::shared_ptr<NK> Hive::ProcessSubkeys(std::string keypath)
+{
+	// function that loads all of the subkeys for a specified path and returns a ptr to the final key
 	// with massive thanks to https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
 	std::string delimiter = "/";
 	std::vector<std::string> keys;
@@ -67,13 +89,5 @@ int Hive::ListSubkeys(std::string keypath)
 		key_pointers.push_back(key_pointers[i]->Tunnel(keys[i].c_str()));
 	}
 
-	// fake call for an *imaginary* subkey to load the subkey vector
-	key_pointers[key_pointers.size()-1]->Tunnel("blank");
-
-	for (int i = 0; i < key_pointers[key_pointers.size() - 1]->subkeys.size(); i++)
-	{
-		std::cout << key_pointers[key_pointers.size() - 1]->subkeys[i]->m_name << std::endl;
-	}
-
-	return 0;
+	return key_pointers[key_pointers.size()-1];
 }

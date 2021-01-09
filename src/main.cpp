@@ -10,7 +10,7 @@ int main() {
 	// must end with a forward slash
 	std::string key = "CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}/Apple Inc./Bonjour/DynDNS/Setup/";
 	std::cout << "The subkeys of " << key << " are:" << std::endl;
-	hive->ListSubkeys(key);
+	hive->GetSubkeys(key);
 
 	std::cin.get();
 	return 0;
