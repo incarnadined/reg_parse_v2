@@ -3,9 +3,9 @@
 list::list(std::ifstream* fs, unsigned long long offset)
 {
 	fs->seekg(0x1000 + offset);
-	fs->read((char*)&m_size, sizeof(int));
-	fs->read((char*)&m_signature, sizeof(short));
-	fs->read((char*)&m_entries_count, sizeof(short));
+	fs->read((char *)&m_size, sizeof(int));
+	fs->read((char *)&m_signature, sizeof(short));
+	fs->read((char *)&m_entries_count, sizeof(short));
 
 
 	// if the signature shows an lf (26220) or lh (26732) list type, the records strucutre is
@@ -31,21 +31,13 @@ list::list(std::ifstream* fs, unsigned long long offset)
 		// seek back to the just after the end of the size
 		fs->seekg(0x1000 + offset + 0x4);
 
-		//
-		for (int i = 0; i < (abs(m_size) - 4) / 4; i++)
-		{
-			record record_instance;
-
-			fs->read((char*)&record_instance, sizeof(unsigned int));
-
-			// data nodes don't have hashes, so set the hash variable to -1 (0xFFFFFFFF)
-			record_instance.hash = 0xFFFFFFFF;
-
-			records.push_back(record_instance);
-		}
+		data = new char[(long long)m_size+1];
+		fs->read((char*)&data, sizeof(m_size));
+		data[m_size] = '\0';
 	}
 }
 
 list::~list()
 {
+	delete[] data;
 }

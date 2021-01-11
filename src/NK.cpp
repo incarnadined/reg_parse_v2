@@ -71,6 +71,7 @@ std::shared_ptr<NK> NK::Tunnel(const char* keyname)
 			return_key = temp_subkey;
 		}
 	}
+	delete list_instance;
 	return return_key;
 
 
@@ -94,4 +95,5 @@ void NK::ProcessValues()
 		std::shared_ptr<VK> temp_value = std::make_shared<VK>(m_fs, list_instance->records[i].offset);
 		values.push_back(temp_value);
 	}
+	delete list_instance;
 }

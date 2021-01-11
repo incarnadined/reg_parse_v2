@@ -18,6 +18,8 @@ public:
 
 	std::vector<record> records;
 
+	char* data;
+
 private:
 
 	int m_size;

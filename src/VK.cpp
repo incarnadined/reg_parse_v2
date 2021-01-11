@@ -25,4 +25,41 @@ VK::VK(std::ifstream* fs, unsigned int offset) : m_offset(offset), m_fs(fs)
 VK::~VK()
 {
 	delete[] m_name;
+	delete[] retrieved_data;
+}
+
+RegType VK::GetType()
+{
+	return m_type;
+}
+
+char* VK::GetData()
+{
+	// creates an array of the data retrieved from the ptr, or from the data var if it is resident
+
+	if (m_resident)
+	{
+		switch (m_data_length)
+		{
+		case 4:
+			return (char *)&m_data;
+
+		case 3:
+			return (char *)&m_data + 1;
+
+		case 2:
+			return (char *)&m_data + 2;
+
+		case 1:
+			return (char *)&m_data + 3;
+		}
+	}
+	else
+	{
+		list* list_instance = new list(m_fs, m_data);
+
+		retrieved_data = list_instance->data;
+
+		delete list_instance;
+	}
 }

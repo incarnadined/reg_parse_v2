@@ -11,6 +11,22 @@ Hive::Hive(const char* filepath) : m_magic_bytes(0), m_root_cell_offset(0)
 		throw;
 	}
 
+	fs.read((char *)&m_primary_sequence_number, sizeof(unsigned int));
+	fs.read((char *)&m_secondary_sequence_number, sizeof(unsigned int));
+	if (m_primary_sequence_number != m_secondary_sequence_number)
+	{
+		// the hive is dirty and should be cleaned with transaction logs
+		//throw;
+	}
+
+	// read the last written timestamp of the file (FILETIME format) and convert to SYSTEMTIME
+	fs.read((char*)&m_last_written, sizeof(FILETIME));
+	FileTimeToSystemTime(&m_last_written, m_timestamp);
+
+	// read the major and minor version numbers of the hive
+	fs.read((char*)&m_major_version_number, sizeof(unsigned int));
+	fs.read((char*)&m_minor_version_number, sizeof(unsigned int));
+
 	fs.seekg(0x24);
 	fs.read((char*)&m_root_cell_offset, sizeof(unsigned int));
 
@@ -43,7 +59,7 @@ int Hive::GetValue(std::string keypath, char* valuename)
 	{
 		if (!strcmp(key->values[i]->m_name, valuename))
 		{
-			std::cout << key->values[i]->m_name << std::endl;
+			std::cout << key->values[i]->m_name;
 		}
 	}
 
