@@ -1,26 +1,19 @@
 #include "NK.h"
 
-NK::NK(std::ifstream* fs, unsigned int offset) : m_offset(offset), m_fs(fs)
+NK::NK(std::istream* fs, unsigned int offset) : m_offset(offset), m_fs(fs)
 {
-	m_fs->seekg(0x1000 + m_offset); // all offsets are relative to the first hbin (located at 0x1000)
+	Helper::Read(m_fs, 0x1000 + m_offset + 0x00, sizeof(int), &m_size);
+	Helper::Read(m_fs, 0x1000 + m_offset + 0x08, sizeof(long long), &m_last_write);
+	Helper::Read(m_fs, 0x1000 + m_offset + 0x06, sizeof(unsigned short), &m_flags);
+	Helper::Read(m_fs, 0x1000 + m_offset + 0x14, sizeof(int), &m_parent_offset);
+	Helper::Read(m_fs, 0x1000 + m_offset + 0x18, sizeof(int), &m_subkey_count);
+	Helper::Read(m_fs, 0x1000 + m_offset + 0x20, sizeof(int), &m_subkey_offset);
+	Helper::Read(m_fs, 0x1000 + m_offset + 0x28, sizeof(int), &m_value_count);
+	Helper::Read(m_fs, 0x1000 + m_offset + 0x2C, sizeof(int), &m_value_offset);
+	Helper::Read(m_fs, 0x1000 + m_offset + 0x4C, sizeof(int), &m_name_length);
 
-	m_fs->read((char*)&m_size, sizeof(int));
-	m_fs->seekg(0x1000 + m_offset + 0x06);
-	m_fs->read((char*)&m_flags, sizeof(unsigned short));
-	m_fs->read((char*)&m_last_write, sizeof(long long));
-	m_fs->seekg(0x1000 + m_offset + 0x14);
-	m_fs->read((char*)&m_parent_offset, sizeof(unsigned int));
-	m_fs->read((char*)&m_subkey_count, sizeof(unsigned int));
-	m_fs->seekg(0x1000 + m_offset + 0x20);
-	m_fs->read((char*)&m_subkey_offset, sizeof(unsigned int));
-	m_fs->seekg(0x1000 + m_offset + 0x28);
-	m_fs->read((char*)&m_value_count, sizeof(unsigned int));
-	m_fs->read((char*)&m_value_offset, sizeof(unsigned int));
-	m_fs->seekg(0x1000 + m_offset + 0x4C);
-	m_fs->read((char*)&m_name_length, sizeof(unsigned short));
-	m_name = new char[(long long)m_name_length+1];
-	m_fs->seekg(0x1000 + m_offset + 0x50);
-	m_fs->read((char*)m_name, m_name_length);
+	m_name = new char[(long long)m_name_length + 1];
+	Helper::Read(m_fs, 0x1000 + m_offset + 0x50, m_name_length, m_name);
 	m_name[m_name_length] = '\0';
 }
 

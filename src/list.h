@@ -2,6 +2,8 @@
 #include <fstream>
 #include <vector>
 
+#include "helper.h"
+
 struct record
 {
 	// if hash is -1 then the list type doesn't have hashes
@@ -13,7 +15,7 @@ class list
 {
 	// NOTE: all list classes should be temporary to find data and should NOT exceed the scope of one function
 public:
-	list(std::ifstream* fs, unsigned long long offset);
+	list(std::istream* fs, unsigned int offset);
 	~list();
 
 	std::vector<record> records;

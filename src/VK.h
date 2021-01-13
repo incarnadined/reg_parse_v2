@@ -7,16 +7,25 @@
 #include "list.h"
 
 enum class RegType{
-	RegNone,  RegSz, RegExpandSz, RegBinary,
-	RegDword, RegDwordBigEndian, RegLink, RegMultiSz,
-	RegResourceList, RegFullResourceDescription,
-	RegResourceRequirementsList, RegQWord, RegFileTime=0x10
+	RegNone,
+	RegSz,
+	RegExpandSz,
+	RegBinary,
+	RegDword,
+	RegDwordBigEndian,
+	RegLink,
+	RegMultiSz,
+	RegResourceList,
+	RegFullResourceDescription,
+	RegResourceRequirementsList,
+	RegQWord,
+	RegFileTime=0x10
 };
 
 class VK
 {
 public:
-	VK(std::ifstream* fs, unsigned int offset);
+	VK(std::istream* fs, unsigned int offset);
 	~VK();
 
 	RegType GetType();
@@ -26,8 +35,8 @@ public:
 	unsigned int m_data_length;
 
 private:
-	std::ifstream* m_fs;
-	unsigned long long m_offset;
+	std::istream* m_fs;
+	unsigned int m_offset;
 	bool m_resident;
 
 	char* retrieved_data;

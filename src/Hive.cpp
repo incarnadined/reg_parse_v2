@@ -4,15 +4,15 @@ Hive::Hive(const char* filepath) : m_magic_bytes(0), m_root_cell_offset(0)
 {
 	fs.open(filepath, std::ifstream::in | std::ifstream::binary);
 
-	fs.read((char *)&m_magic_bytes, sizeof(int));
+	Helper::Read(&fs, 0x00, sizeof(int), &m_magic_bytes);
 	if (m_magic_bytes != 1718052210)
 	{
 		//ERROR!!! file magic bytes are not regf
 		throw;
 	}
 
-	fs.read((char *)&m_primary_sequence_number, sizeof(unsigned int));
-	fs.read((char *)&m_secondary_sequence_number, sizeof(unsigned int));
+	Helper::Read(&fs, 0x04, sizeof(unsigned int), &m_primary_sequence_number);
+	Helper::Read(&fs, 0x08, sizeof(unsigned int), &m_secondary_sequence_number);
 	if (m_primary_sequence_number != m_secondary_sequence_number)
 	{
 		// the hive is dirty and should be cleaned with transaction logs
@@ -20,14 +20,13 @@ Hive::Hive(const char* filepath) : m_magic_bytes(0), m_root_cell_offset(0)
 	}
 
 	// read the last written timestamp of the file
-	fs.read((char*)&m_last_written, sizeof(long long));
+	Helper::Read(&fs, 0x0C, sizeof(long long), &m_last_written);
 
 	// read the major and minor version numbers of the hive
-	fs.read((char*)&m_major_version_number, sizeof(unsigned int));
-	fs.read((char*)&m_minor_version_number, sizeof(unsigned int));
+	Helper::Read(&fs, 0x14, sizeof(unsigned int), &m_major_version_number);
+	Helper::Read(&fs, 0x18, sizeof(unsigned int), &m_minor_version_number);
 
-	fs.seekg(0x24);
-	fs.read((char*)&m_root_cell_offset, sizeof(unsigned int));
+	Helper::Read(&fs, 0x24, sizeof(unsigned int), &m_root_cell_offset);
 
 	m_root = std::make_shared<NK>(&fs, m_root_cell_offset);
 }
@@ -35,6 +34,7 @@ Hive::Hive(const char* filepath) : m_magic_bytes(0), m_root_cell_offset(0)
 Hive::~Hive()
 {
 }
+
 
 auto Hive::GetFileData()
 {
@@ -62,7 +62,7 @@ int Hive::GetValue(std::string keypath, char* valuename)
 
 			char* ptr = key->values[i]->GetData();
 
-			for (int j = 0; j < key->values[i]->m_data_length; j++)
+			for (unsigned int j = 0; j < key->values[i]->m_data_length; j++)
 			{
 				std::cout << *(ptr + j);
 			}

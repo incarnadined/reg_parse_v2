@@ -15,7 +15,6 @@ public:
 	Hive(const char* filepath);
 	~Hive();
 
-
 	// auto here should be replaced with a data type that contains the value data (struct)
 	auto GetFileData();
 

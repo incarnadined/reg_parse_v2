@@ -10,7 +10,7 @@
 class NK
 {
 public:
-	NK(std::ifstream* fs, unsigned int offset);
+	NK(std::istream* fs, unsigned int offset);
 	~NK();
 
 	std::shared_ptr<NK> Tunnel(const char* keyname);
@@ -21,8 +21,8 @@ public:
 	char* m_name;
 
 private:
-	std::ifstream* m_fs;
-	unsigned long long m_offset;
+	std::istream* m_fs;
+	unsigned int m_offset;
 
 	int m_size;
 	unsigned short m_flags;
@@ -34,4 +34,3 @@ private:
 	unsigned int m_value_offset;
 	unsigned short m_name_length;
 };
-

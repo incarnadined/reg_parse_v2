@@ -1,11 +1,10 @@
 #include "list.h"
 
-list::list(std::ifstream* fs, unsigned long long offset)
+list::list(std::istream* fs, unsigned int offset)
 {
-	fs->seekg(0x1000 + offset);
-	fs->read((char *)&m_size, sizeof(int));
-	fs->read((char *)&m_signature, sizeof(short));
-	fs->read((char *)&m_entries_count, sizeof(short));
+	Helper::Read(fs, 0x1000 + offset, sizeof(int), &m_size);
+	Helper::Read(fs, 0x1000 + offset + 0x4, sizeof(short), &m_signature);
+	Helper::Read(fs, 0x1000 + offset + 0x6, sizeof(short), &m_entries_count);
 
 
 	// if the signature shows an lf (26220) or lh (26732) list type, the records strucutre is
@@ -18,12 +17,12 @@ list::list(std::ifstream* fs, unsigned long long offset)
 		{
 			record record_instance;
 
-			fs->read((char*)&record_instance, sizeof(record));
+			Helper::Read(fs, 0x1000 + offset + 0x8 + (unsigned int)sizeof(record) * i, sizeof(record), &record_instance);
 
 			records.push_back(record_instance);
 		}
 	}
-	else // no recognised signature means a data node - m_signature and m_entries_count are garbage now
+	/*else // no recognised signature means a data node - m_signature and m_entries_count are garbage now
 	{
 		// structure of a data node is (not including 4 byte size)
 		// 4 bytes pointer or a whole bunch of data (for values)
@@ -52,7 +51,7 @@ list::list(std::ifstream* fs, unsigned long long offset)
 
 			records.push_back(record_instace);
 		}
-	}
+	}*/
 }
 
 list::~list()
