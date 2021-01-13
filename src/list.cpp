@@ -26,14 +26,32 @@ list::list(std::ifstream* fs, unsigned long long offset)
 	else // no recognised signature means a data node - m_signature and m_entries_count are garbage now
 	{
 		// structure of a data node is (not including 4 byte size)
-		// 4 bytes pointer
+		// 4 bytes pointer or a whole bunch of data (for values)
+
+		// create a length var (m_size is negative), subtract 4 bytes for the size int, add one for a null byte
+		int length = abs(m_size) - 4 + 1;
 
 		// seek back to the just after the end of the size
 		fs->seekg(0x1000 + offset + 0x4);
 
-		data = new char[(long long)m_size+1];
-		fs->read((char*)&data, sizeof(m_size));
-		data[m_size] = '\0';
+		data = new char[length];
+		fs->read((char*)data, sizeof(length-1));
+
+		// add a null byte to the end incase there isn't one already (not a string)
+		data[length-1] = '\0';
+
+		// in case this points to a value list, populate the records
+		for (int i = 0; i < (length - 1) / 4; i++)
+		{
+			record record_instace;
+
+			// get the ith int from data
+			record_instace.offset = *((int*)data + i);
+
+			record_instace.hash = 0xFFFFFFFF;
+
+			records.push_back(record_instace);
+		}
 	}
 }
 

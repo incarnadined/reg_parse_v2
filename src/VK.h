@@ -23,6 +23,7 @@ public:
 	char* GetData();
 
 	char* m_name;
+	unsigned int m_data_length;
 
 private:
 	std::ifstream* m_fs;
@@ -33,7 +34,6 @@ private:
 
 	int m_size;
 	unsigned short m_name_length;
-	unsigned int m_data_length;
 	unsigned int m_data;
 	unsigned short m_flags;
 	RegType m_type;

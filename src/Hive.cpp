@@ -19,9 +19,8 @@ Hive::Hive(const char* filepath) : m_magic_bytes(0), m_root_cell_offset(0)
 		//throw;
 	}
 
-	// read the last written timestamp of the file (FILETIME format) and convert to SYSTEMTIME
-	fs.read((char*)&m_last_written, sizeof(FILETIME));
-	FileTimeToSystemTime(&m_last_written, m_timestamp);
+	// read the last written timestamp of the file
+	fs.read((char*)&m_last_written, sizeof(long long));
 
 	// read the major and minor version numbers of the hive
 	fs.read((char*)&m_major_version_number, sizeof(unsigned int));
@@ -60,6 +59,15 @@ int Hive::GetValue(std::string keypath, char* valuename)
 		if (!strcmp(key->values[i]->m_name, valuename))
 		{
 			std::cout << key->values[i]->m_name;
+
+			char* ptr = key->values[i]->GetData();
+
+			for (int j = 0; j < key->values[i]->m_data_length; j++)
+			{
+				std::cout << *(ptr + j);
+			}
+
+			std::cout << std::endl;
 		}
 	}
 

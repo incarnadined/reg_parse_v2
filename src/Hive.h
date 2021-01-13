@@ -33,11 +33,9 @@ private:
 	int m_magic_bytes;
 	unsigned int m_primary_sequence_number;
 	unsigned int m_secondary_sequence_number;
-	FILETIME m_last_written;
+	long long m_last_written;
 	unsigned int m_major_version_number;
 	unsigned int m_minor_version_number;
 	unsigned int m_root_cell_offset;
-
-	LPSYSTEMTIME m_timestamp;
 };
 

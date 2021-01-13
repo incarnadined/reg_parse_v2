@@ -1,10 +1,11 @@
 #include "VK.h"
 
-VK::VK(std::ifstream* fs, unsigned int offset) : m_offset(offset), m_fs(fs)
+VK::VK(std::ifstream* fs, unsigned int offset) : m_offset(offset), m_fs(fs), retrieved_data(0), m_resident(false)
 {
 	m_fs->seekg(0x1000 + m_offset); // all offsets are relative to the first hbin (located at 0x1000)
 
 	m_fs->read((char*)&m_size, sizeof(int));
+	m_fs->seekg(0x1000 + m_offset + 0x06);
 	m_fs->read((char*)&m_name_length, sizeof(unsigned short));
 	m_fs->read((char*)&m_data_length, sizeof(unsigned int));
 	m_fs->read((char*)&m_data, sizeof(unsigned int));
@@ -56,10 +57,20 @@ char* VK::GetData()
 	}
 	else
 	{
+		if (retrieved_data)
+		{
+			// if retrieved data is already populated return it
+			return retrieved_data;
+		}
+
 		list* list_instance = new list(m_fs, m_data);
 
 		retrieved_data = list_instance->data;
 
 		delete list_instance;
+
+		return retrieved_data;
 	}
+
+	return nullptr;
 }
