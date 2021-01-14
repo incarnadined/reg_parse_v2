@@ -1,6 +1,6 @@
 #include "VK.h"
 
-VK::VK(std::istream* fs, unsigned int offset) : m_offset(offset), m_fs(fs), retrieved_data(0), m_resident(false)
+VK::VK(std::istream* fs, unsigned int offset) : m_offset(offset), m_fs(fs), m_resident(false), m_retrieved(false)
 {
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x00, sizeof(int), &m_size);
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x06, sizeof(unsigned short), &m_name_length);
@@ -24,7 +24,7 @@ VK::VK(std::istream* fs, unsigned int offset) : m_offset(offset), m_fs(fs), retr
 VK::~VK()
 {
 	delete[] m_name;
-	delete[] retrieved_data;
+	delete data_node;
 }
 
 RegType VK::GetType()
@@ -32,7 +32,7 @@ RegType VK::GetType()
 	return m_type;
 }
 
-char* VK::GetData()
+unsigned char* VK::LoadData()
 {
 	// creates an array of the data retrieved from the ptr, or from the data var if it is resident
 
@@ -41,34 +41,46 @@ char* VK::GetData()
 		switch (m_data_length)
 		{
 		case 4:
-			return (char *)&m_data;
+			return (unsigned char *)&m_data;
 
 		case 3:
-			return (char *)&m_data + 1;
+			return (unsigned char *)&m_data + 1;
 
 		case 2:
-			return (char *)&m_data + 2;
+			return (unsigned char *)&m_data + 2;
 
 		case 1:
-			return (char *)&m_data + 3;
+			return (unsigned char *)&m_data + 3;
 		}
 	}
 	else
 	{
-		if (retrieved_data)
+		if (m_retrieved)
 		{
-			// if retrieved data is already populated return it
-			return retrieved_data;
+			// if data has already been retrieved
+			return data_node->raw_data;
 		}
 
-		list* list_instance = new list(m_fs, m_data);
+		data_node = new DataNode(m_fs, m_data);
+		m_retrieved = true;
 
-		retrieved_data = list_instance->data;
-
-		delete list_instance;
-
-		return retrieved_data;
+		return data_node->raw_data;
 	}
 
 	return nullptr;
+}
+
+void VK::PrettyPrintData()
+{
+	switch (m_type)
+	{
+	case RegType::RegNone:
+		break;
+
+	case RegType::RegSz:
+		wchar_t* data = (wchar_t*)this->LoadData();
+		std::cout << data << std::endl;
+
+		break;
+	}
 }

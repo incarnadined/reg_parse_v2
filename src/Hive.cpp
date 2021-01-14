@@ -58,7 +58,8 @@ int Hive::GetValue(std::string keypath, char* valuename)
 	{
 		if (!strcmp(key->values[i]->m_name, valuename))
 		{
-			std::cout << key->values[i]->m_name;
+			std::cout << key->values[i]->m_name << std::endl;
+			key->values[i]->PrettyPrintData();
 		}
 	}
 

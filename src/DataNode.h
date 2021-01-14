@@ -11,6 +11,7 @@ public:
 	~DataNode();
 
 	unsigned int* pointers;
+	unsigned char* raw_data;
 
 private:
 	int m_size;

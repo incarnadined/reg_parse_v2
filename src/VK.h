@@ -4,7 +4,7 @@
 #include <memory>
 #include <iostream>
 
-#include "list.h"
+#include "includes.h"
 
 enum class RegType{
 	RegNone,
@@ -29,7 +29,8 @@ public:
 	~VK();
 
 	RegType GetType();
-	char* GetData();
+	unsigned char* LoadData();
+	void PrettyPrintData();
 
 	char* m_name;
 	unsigned int m_data_length;
@@ -38,8 +39,8 @@ private:
 	std::istream* m_fs;
 	unsigned int m_offset;
 	bool m_resident;
-
-	char* retrieved_data;
+	bool m_retrieved;
+	DataNode* data_node;
 
 	int m_size;
 	unsigned short m_name_length;
