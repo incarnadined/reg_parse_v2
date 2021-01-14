@@ -1,6 +1,12 @@
 #pragma once
 #include <fstream>
 
+struct FILETIME
+{
+	unsigned int lowDateTime;
+	unsigned int highDateTime;
+};
+
 class Helper
 {
 public:

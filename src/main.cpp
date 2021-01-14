@@ -8,14 +8,14 @@ int main() {
 	Hive* hive = new Hive(filepath);
 
 	// must end with a forward slash
-	std::string key = "CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}/Apple Inc./Internet Services/AAS/";
+	std::string key = "CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}/Microsoft/Windows Mail/";
 	std::cout << "The subkeys of " << key << " are:" << std::endl;
 	hive->GetSubkeys(key);
 
 	std::cout << std::endl;
 
 	std::cout << "The values of " << key << " are:" << std::endl;
-	hive->GetValue(key, (char*)"InstallDir");
+	hive->GetValue(key, (char*)"Disable Hotmail");
 
 	std::cin.get();
 }

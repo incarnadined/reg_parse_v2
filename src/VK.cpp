@@ -78,9 +78,79 @@ void VK::PrettyPrintData()
 		break;
 
 	case RegType::RegSz:
+	{
 		wchar_t* data = (wchar_t*)this->LoadData();
 		std::cout << data << std::endl;
-
 		break;
+	}
+
+	case RegType::RegExpandSz:
+	{
+		wchar_t* data = (wchar_t*)this->LoadData();
+		std::cout << data << std::endl;
+		break;
+	}
+
+	case RegType::RegBinary:
+	{
+		unsigned int* data = (unsigned int*)this->LoadData();
+		std::cout << std::hex << *data << std::endl;
+		break;
+	}
+
+	case RegType::RegDword:
+	{
+		unsigned int* data = (unsigned int*)this->LoadData();
+		std::cout << *data << std::endl;
+		break;
+	}
+
+	case RegType::RegDwordBigEndian:
+	{
+		unsigned char* buffer = this->LoadData();
+		int num = (int)&buffer[0] | (int)&buffer[1] << 8 | (int)&buffer[2] << 16 | (int)&buffer[3] << 24;
+		break;
+	}
+
+	case RegType::RegLink:
+	{
+		// i don't want to
+		break;
+	}
+
+	case RegType::RegMultiSz:
+	{
+		//i still don't want to
+	}
+
+	case RegType::RegResourceList:
+	{
+		// just nope
+		break;
+	}
+
+	case RegType::RegFullResourceDescription:
+	{
+		// guess what
+		break;
+	}
+
+	case RegType::RegResourceRequirementsList:
+	{
+		break;
+	}
+
+	case RegType::RegQWord:
+	{
+		unsigned long long* data = (unsigned long long*)this->LoadData();
+		std::cout << *data << std::endl;
+		break;
+	}
+
+	case RegType::RegFileTime:
+	{
+		FILETIME* data = (unsigned long long*)this->LoadData();
+		break;
+	}
 	}
 }
