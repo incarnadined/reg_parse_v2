@@ -52,11 +52,31 @@ std::shared_ptr<NK> NK::Tunnel(const char* keyname)
 	// make the vector big enough to store all of the subkeys
 	subkeys.reserve(m_subkey_count);
 
+	// create fake var ready for deletion later
+	int* templist = new int;
+	short temp_signature;
+	unsigned int* pointers = new unsigned int[0];
+	Helper::Read(m_fs, 0x1000 + m_subkey_offset + 0x4, sizeof(short), &temp_signature);
+	if (temp_signature == 26220)
+	{
+		FastLeaf* templist = new FastLeaf(m_fs, m_subkey_offset);
+		pointers = templist->pointers;
+	}
+	else if (temp_signature == 26732)
+	{
+		HashLeaf * templist = new HashLeaf(m_fs, m_subkey_offset);
+		pointers = templist->pointers;
+	}
+	else if (temp_signature == 26994)
+	{
+		IndexRoot* templist = new IndexRoot(m_fs, m_subkey_offset);
+		pointers = templist->pointers;
+	}
+
 	std::shared_ptr<NK> return_key;
-	list* list_instance = new list(m_fs, m_subkey_offset);
 	for (unsigned int i = 0; i < m_subkey_count; i++)
 	{
-		std::shared_ptr<NK> temp_subkey = std::make_shared<NK>(m_fs, list_instance->records[i].offset);
+		std::shared_ptr<NK> temp_subkey = std::make_shared<NK>(m_fs, pointers[i]);
 		subkeys.push_back(temp_subkey);
 
 		if (!strcmp(temp_subkey->m_name, keyname))
@@ -64,11 +84,10 @@ std::shared_ptr<NK> NK::Tunnel(const char* keyname)
 			return_key = temp_subkey;
 		}
 	}
-	delete list_instance;
+
+	delete templist;
+
 	return return_key;
-
-
-	return std::shared_ptr<NK>();
 }
 
 void NK::ProcessValues()
@@ -82,11 +101,11 @@ void NK::ProcessValues()
 	// make the vector big enough to store all of the values
 	values.reserve(m_value_count);
 
-	list* list_instance = new list(m_fs, m_value_offset);
+	DataNode* data_node = new DataNode(m_fs, m_value_offset);
 	for (unsigned int i = 0; i < m_value_count; i++)
 	{
-		std::shared_ptr<VK> temp_value = std::make_shared<VK>(m_fs, list_instance->records[i].offset);
+		std::shared_ptr<VK> temp_value = std::make_shared<VK>(m_fs, data_node->pointers[i]);
 		values.push_back(temp_value);
 	}
-	delete list_instance;
+	delete data_node;
 }

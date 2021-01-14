@@ -7,3 +7,8 @@ void Helper::Read(std::istream* fs, unsigned int offset, unsigned long long size
 	fs->seekg(offset);
 	fs->read((char*)ptr, size);
 }
+
+int Helper::LeafHash()
+{
+	return 0;
+}

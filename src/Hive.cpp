@@ -59,15 +59,6 @@ int Hive::GetValue(std::string keypath, char* valuename)
 		if (!strcmp(key->values[i]->m_name, valuename))
 		{
 			std::cout << key->values[i]->m_name;
-
-			char* ptr = key->values[i]->GetData();
-
-			for (unsigned int j = 0; j < key->values[i]->m_data_length; j++)
-			{
-				std::cout << *(ptr + j);
-			}
-
-			std::cout << std::endl;
 		}
 	}
 

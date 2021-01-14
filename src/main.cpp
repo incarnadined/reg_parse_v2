@@ -15,7 +15,7 @@ int main() {
 	std::cout << std::endl;
 
 	std::cout << "The values of " << key << " are:" << std::endl;
-	//hive->GetValue(key, (char*)"InstallDir");
+	hive->GetValue(key, (char*)"InstallDir");
 
 	std::cin.get();
 }
