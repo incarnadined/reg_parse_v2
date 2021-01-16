@@ -1,7 +1,7 @@
 #pragma once
 #include <fstream>
 
-struct FILETIME
+struct TIME
 {
 	unsigned int lowDateTime;
 	unsigned int highDateTime;

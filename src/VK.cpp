@@ -107,8 +107,10 @@ void VK::PrettyPrintData()
 
 	case RegType::RegDwordBigEndian:
 	{
+		//write some big endian code
+
 		unsigned char* buffer = this->LoadData();
-		int num = (int)&buffer[0] | (int)&buffer[1] << 8 | (int)&buffer[2] << 16 | (int)&buffer[3] << 24;
+		//int num = (int)&buffer[0] | (int)&buffer[1] << 8 | (int)&buffer[2] << 16 | (int)&buffer[3] << 24;
 		break;
 	}
 
@@ -149,7 +151,7 @@ void VK::PrettyPrintData()
 
 	case RegType::RegFileTime:
 	{
-		FILETIME* data = (unsigned long long*)this->LoadData();
+		//TIME* data = (unsigned long long*)this->LoadData();
 		break;
 	}
 	}

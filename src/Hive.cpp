@@ -28,11 +28,18 @@ Hive::Hive(const char* filepath) : m_magic_bytes(0), m_root_cell_offset(0)
 
 	Helper::Read(&fs, 0x24, sizeof(unsigned int), &m_root_cell_offset);
 
+	std::cout << m_primary_sequence_number << " - " << m_secondary_sequence_number << std::endl;
+
 	m_root = std::make_shared<NK>(&fs, m_root_cell_offset);
 }
 
 Hive::~Hive()
 {
+}
+
+void Hive::GetVersion()
+{
+	std::cout << m_major_version_number << "." << m_minor_version_number << std::endl;
 }
 
 
