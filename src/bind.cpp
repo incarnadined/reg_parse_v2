@@ -9,5 +9,8 @@ PYBIND11_MODULE(reg_parse_v2, m) {
 
     py::class_<Hive>(m, "Hive")
         .def(py::init<const char*>())
-        .def("GetVersion", &Hive::GetVersion);
+        .def("GetVersion", &Hive::GetVersion)
+        .def("GetValues", &Hive::GetValues)
+        .def("GetValue", &Hive::GetValue)
+        ;
 }
