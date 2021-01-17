@@ -17,3 +17,5 @@ setup(
     name='reg_parse_v2',
     ext_modules=ext_modules
 )
+
+# python setup.py build_ext --inplace

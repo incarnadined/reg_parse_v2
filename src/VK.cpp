@@ -32,6 +32,11 @@ RegType VK::GetType()
 	return m_type;
 }
 
+char* VK::GetName()
+{
+	return m_name;
+}
+
 unsigned char* VK::LoadData()
 {
 	// creates an array of the data retrieved from the ptr, or from the data var if it is resident
@@ -70,7 +75,7 @@ unsigned char* VK::LoadData()
 	return nullptr;
 }
 
-void VK::PrettyPrintData()
+std::wstring VK::GetData()
 {
 	switch (m_type)
 	{
@@ -79,29 +84,31 @@ void VK::PrettyPrintData()
 
 	case RegType::RegSz:
 	{
-		wchar_t* data = (wchar_t*)this->LoadData();
-		std::cout << data << std::endl;
+		std::wstring* data = (std::wstring *)this->LoadData();
+		return *data;
 		break;
 	}
 
 	case RegType::RegExpandSz:
 	{
-		wchar_t* data = (wchar_t*)this->LoadData();
-		std::cout << data << std::endl;
+		std::wstring* data = (std::wstring*)this->LoadData();
+		return *data;
 		break;
 	}
 
 	case RegType::RegBinary:
 	{
+		std::wstringstream stream;
 		unsigned int* data = (unsigned int*)this->LoadData();
-		std::cout << std::hex << *data << std::endl;
+		stream << std::hex << *data;
+		return stream.str();
 		break;
 	}
 
 	case RegType::RegDword:
 	{
 		unsigned int* data = (unsigned int*)this->LoadData();
-		std::cout << *data << std::endl;
+		return std::to_wstring(*data);
 		break;
 	}
 
@@ -145,7 +152,7 @@ void VK::PrettyPrintData()
 	case RegType::RegQWord:
 	{
 		unsigned long long* data = (unsigned long long*)this->LoadData();
-		std::cout << *data << std::endl;
+		return std::to_wstring(*data);
 		break;
 	}
 

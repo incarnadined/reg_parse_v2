@@ -37,9 +37,9 @@ Hive::~Hive()
 {
 }
 
-void Hive::GetVersion()
+std::string Hive::GetVersion()
 {
-	std::cout << m_major_version_number << "." << m_minor_version_number << std::endl;
+	return std::to_string(m_major_version_number) + std::string(".") + std::to_string(m_minor_version_number);
 }
 
 
@@ -54,7 +54,7 @@ auto Hive::GetFileData()
 	// file name
 }
 
-int Hive::GetValue(std::string keypath, char* valuename)
+std::tuple<char*, RegType, std::wstring> Hive::GetValue(std::string keypath, char* valuename)
 {
 	// returns a tuple containing data for a specific value from a keypath
 
@@ -63,21 +63,46 @@ int Hive::GetValue(std::string keypath, char* valuename)
 
 	for (int i = 0; i < key->values.size(); i++)
 	{
-		if (!strcmp(key->values[i]->m_name, valuename))
+		if (!strcmp(key->values[i]->GetName(), valuename))
 		{
-			std::cout << key->values[i]->m_name << " - ";
-			key->values[i]->PrettyPrintData();
-			std::cout << std::endl;
+			std::shared_ptr<VK> value = key->values[i];
+			std::tuple<char*, RegType, std::wstring> value_tuple;
+
+			value_tuple = std::make_tuple(value->GetName(), value->GetType(), value->GetData());
+
+			return value_tuple;
 		}
 	}
 
-	return 0;
+	return std::make_tuple((char*)"", (RegType)-1, L"");
 }
 
-int Hive::GetValues(std::string keypath)
+std::vector<std::tuple<char*, RegType, std::wstring>> Hive::GetValues(std::string keypath)
 {
-	// returns a list of tuples with a tuple for each value of the subkey
+	// each key has a tuple in the vector
+	// each tuple is in the form NAME, DATA_TYPE, DATA
+	// data must be cast to a char*
+	std::vector<std::tuple<char*, RegType, std::wstring>> values;
 
+	std::shared_ptr<NK> key = ProcessSubkeys(keypath);
+	key->ProcessValues();
+
+	for (int i = 0; i < key->values.size(); i++)
+	{
+		std::shared_ptr<VK> value = key->values[i];
+		std::tuple<char*, RegType, std::wstring> value_tuple;
+
+		value_tuple = std::make_tuple(value->GetName(), value->GetType(), value->GetData());
+
+		values.push_back(value_tuple);
+	}
+
+	return values;
+}
+
+int Hive::GetRawValue(std::string keypath)
+{
+	// returns the raw data for a value
 	return 0;
 }
 

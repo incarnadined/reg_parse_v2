@@ -3,10 +3,13 @@
 #include <vector>
 #include <memory>
 #include <iostream>
+#include <sstream>
+#include <string>
 
 #include "includes.h"
 
-enum class RegType{
+enum class RegType {
+	RegError = -1,
 	RegNone,
 	RegSz,
 	RegExpandSz,
@@ -19,7 +22,7 @@ enum class RegType{
 	RegFullResourceDescription,
 	RegResourceRequirementsList,
 	RegQWord,
-	RegFileTime=0x10
+	RegFileTime = 0x10
 };
 
 class VK
@@ -29,10 +32,11 @@ public:
 	~VK();
 
 	RegType GetType();
-	unsigned char* LoadData();
-	void PrettyPrintData();
+	char* GetName();
 
-	char* m_name;
+	unsigned char* LoadData();
+	std::wstring GetData();
+
 	unsigned int m_data_length;
 
 private:
@@ -42,6 +46,7 @@ private:
 	bool m_retrieved;
 	DataNode* data_node;
 
+	char* m_name;
 	int m_size;
 	unsigned short m_name_length;
 	unsigned int m_data;

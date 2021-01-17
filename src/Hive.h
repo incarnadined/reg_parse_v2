@@ -5,7 +5,7 @@
 #include <vector>
 #include <memory>
 #include <exception>
-#include <Windows.h>
+#include <tuple>
 
 #include "NK.h"
 
@@ -15,13 +15,14 @@ public:
 	Hive(const char* filepath);
 	~Hive();
 
-	void GetVersion();
+	std::string GetVersion();
 
 	// auto here should be replaced with a data type that contains the value data (struct)
 	auto GetFileData();
 
-	int GetValue(std::string keypath, char* valuename);
-	int GetValues(std::string keypath);
+	std::tuple<char*, RegType, std::wstring> GetValue(std::string keypath, char* valuename);
+	std::vector<std::tuple<char*, RegType, std::wstring>> GetValues(std::string keypath);
+	int GetRawValue(std::string keypath);
 
 	void GetSubkeys(std::string keypath);
 
