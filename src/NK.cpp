@@ -12,8 +12,16 @@ NK::NK(std::istream* fs, unsigned int offset) : m_offset(offset), m_fs(fs)
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x2C, sizeof(int), &m_value_offset);
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x4C, sizeof(int), &m_name_length);
 
+	flags.insert(std::make_pair(Flags::KEY_VOLATILE, m_flags & Flags::KEY_VOLATILE));
+	flags.insert(std::make_pair(Flags::KEY_HIVE_EXIT, m_flags & Flags::KEY_HIVE_EXIT));
+	flags.insert(std::make_pair(Flags::KEY_HIVE_ENTRY, m_flags & Flags::KEY_HIVE_ENTRY));
+	flags.insert(std::make_pair(Flags::KEY_HIVE_NO_DELETE, m_flags & Flags::KEY_HIVE_NO_DELETE));
+	flags.insert(std::make_pair(Flags::KEY_SYM_LINK, m_flags & Flags::KEY_SYM_LINK));
+	flags.insert(std::make_pair(Flags::KEY_COMP_NAME, m_flags & Flags::KEY_COMP_NAME));
+	flags.insert(std::make_pair(Flags::KEY_PREDEF_HANDLE, m_flags & Flags::KEY_PREDEF_HANDLE));
+
 	// if the name is ascii
-	if (m_flags & Flags::KEY_COMP_NAME)
+	if (flags[Flags::KEY_COMP_NAME])
 	{
 		char* temp_name = new char[(long long)m_name_length+1];
 

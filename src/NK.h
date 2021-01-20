@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <map>
 
 #include "includes.h"
 #include "VK.h"
@@ -42,6 +43,7 @@ private:
 
 	std::wstring m_name;
 	std::shared_ptr<NK> parent;
+	std::map<Flags, bool> flags;
 
 	int m_size;
 	unsigned short m_flags;
