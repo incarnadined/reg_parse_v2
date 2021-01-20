@@ -22,6 +22,11 @@ PYBIND11_MODULE(reg_parse_v2, m) {
 
     py::class_<NK, std::shared_ptr<NK>>(m, "NK")
         .def_property_readonly("name", &NK::GetName)
+
+        .def("__repr__",
+            [](NK& a) {
+                return L"<key '" + a.GetName() + L"'>";
+            })
         ;
 
     py::class_<VK, std::shared_ptr<VK>>(m, "VK")

@@ -96,13 +96,7 @@ std::vector<std::shared_ptr<VK>> Hive::GetValues(std::wstring keypath)
 	return values;
 }
 
-int Hive::GetRawValue(std::wstring keypath)
-{
-	// returns the raw data for a value
-	return 0;
-}
-
-std::vector<std::wstring> Hive::GetSubkeys(std::wstring keypath)
+std::vector<std::shared_ptr<NK>> Hive::GetSubkeys(std::wstring keypath)
 {
 	// function that returns a list of all of the subkeys of a specific key
 	std::shared_ptr<NK> key = ProcessSubkeys(keypath);
@@ -110,10 +104,10 @@ std::vector<std::wstring> Hive::GetSubkeys(std::wstring keypath)
 	// fake call for an *imaginary* subkey to load the subkey vector
 	key->Tunnel(L"blank");
 
-	std::vector<std::wstring> keys;
+	std::vector<std::shared_ptr<NK>> keys;
 	for (int i = 0; i < key->subkeys.size(); i++)
 	{
-		keys.push_back(key->subkeys[i]->GetName());
+		keys.push_back(key->subkeys[i]);
 	}
 
 	return keys;

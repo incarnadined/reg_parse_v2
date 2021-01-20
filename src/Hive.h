@@ -25,9 +25,8 @@ public:
 
 	std::shared_ptr<VK> GetValue(std::wstring keypath, std::wstring valuename);
 	std::vector<std::shared_ptr<VK>> GetValues(std::wstring keypath);
-	int GetRawValue(std::wstring keypath);
 
-	std::vector<std::wstring> GetSubkeys(std::wstring keypath);
+	std::vector<std::shared_ptr<NK>> GetSubkeys(std::wstring keypath);
 
 private:
 	std::shared_ptr<NK> ProcessSubkeys(std::wstring keypath);

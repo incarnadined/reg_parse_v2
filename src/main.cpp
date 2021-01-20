@@ -12,10 +12,10 @@ int main() {
 	size_t key_size = 82;
 
 	std::cout << "The subkeys of " << key << " are:" << std::endl;
-	std::vector<std::wstring> keys = hive->GetSubkeys(Helper::CharToWstring(key, key_size));
+	std::vector<std::shared_ptr<NK>> keys = hive->GetSubkeys(Helper::CharToWstring(key, key_size));
 	for (int i = 0; i < keys.size(); i++)
 	{
-		std::wcout << keys[i] << std::endl;
+		std::wcout << keys[i]->GetName() << std::endl;
 	}
 
 	std::cout << std::endl;
