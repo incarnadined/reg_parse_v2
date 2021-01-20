@@ -12,17 +12,30 @@ NK::NK(std::istream* fs, unsigned int offset) : m_offset(offset), m_fs(fs)
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x2C, sizeof(int), &m_value_offset);
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x4C, sizeof(int), &m_name_length);
 
-	m_name = new char[(long long)m_name_length + 1];
-	Helper::Read(m_fs, 0x1000 + m_offset + 0x50, m_name_length, m_name);
-	m_name[m_name_length] = '\0';
+	// if the name is ascii
+	if (m_flags & Flags::KEY_COMP_NAME)
+	{
+		char* temp_name = new char[(long long)m_name_length+1];
+
+		Helper::Read(m_fs, 0x1000 + m_offset + 0x50, m_name_length, temp_name);
+		temp_name[m_name_length] = '\0';
+
+		m_name = Helper::CharToWstring(temp_name, m_name_length);
+
+		delete[] temp_name;
+	}
+	// else it must be unicode
+	else
+	{
+		Helper::Read(m_fs, 0x1000 + m_offset + 0x50, m_name_length, &m_name);
+	}
 }
 
 NK::~NK()
 {
-	delete[] m_name;
 }
 
-std::shared_ptr<NK> NK::Tunnel(const char* keyname)
+std::shared_ptr<NK> NK::Tunnel(std::wstring keyname)
 {
 	// finds the next subkey from this key
 	// if this key this function has already been ran for this key, returns the entry from the vector
@@ -40,7 +53,7 @@ std::shared_ptr<NK> NK::Tunnel(const char* keyname)
 	{
 		for (int i = 0; i < subkeys.size(); i++)
 		{
-			if (!strcmp(subkeys[i]->m_name, keyname))
+			if (!wcscmp(subkeys[i]->GetName().c_str(), keyname.c_str()))
 			{
 				return subkeys[i];
 			}
@@ -79,7 +92,7 @@ std::shared_ptr<NK> NK::Tunnel(const char* keyname)
 		std::shared_ptr<NK> temp_subkey = std::make_shared<NK>(m_fs, pointers[i]);
 		subkeys.push_back(temp_subkey);
 
-		if (!strcmp(temp_subkey->m_name, keyname))
+		if (!wcscmp(temp_subkey->GetName().c_str(), keyname.c_str()))
 		{
 			return_key = temp_subkey;
 		}
@@ -108,4 +121,9 @@ void NK::ProcessValues()
 		values.push_back(temp_value);
 	}
 	delete data_node;
+}
+
+std::wstring NK::GetName()
+{
+	return m_name;
 }

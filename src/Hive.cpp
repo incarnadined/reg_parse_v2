@@ -27,9 +27,6 @@ Hive::Hive(const char* filepath) : m_magic_bytes(0), m_root_cell_offset(0)
 	Helper::Read(&fs, 0x18, sizeof(unsigned int), &m_minor_version_number);
 
 	Helper::Read(&fs, 0x24, sizeof(unsigned int), &m_root_cell_offset);
-
-	std::cout << m_primary_sequence_number << " - " << m_secondary_sequence_number << std::endl;
-
 	m_root = std::make_shared<NK>(&fs, m_root_cell_offset);
 }
 
@@ -37,9 +34,19 @@ Hive::~Hive()
 {
 }
 
-std::string Hive::GetVersion()
+std::wstring Hive::GetVersion()
 {
-	return std::to_string(m_major_version_number) + std::string(".") + std::to_string(m_minor_version_number);
+	return std::to_wstring(m_major_version_number) + std::wstring(L".") + std::to_wstring(m_minor_version_number);
+}
+
+unsigned int Hive::GetMajor()
+{
+	return m_major_version_number;
+}
+
+unsigned int Hive::GetMinor()
+{
+	return m_minor_version_number;
 }
 
 
@@ -54,7 +61,7 @@ auto Hive::GetFileData()
 	// file name
 }
 
-std::tuple<char*, RegType, std::wstring> Hive::GetValue(std::string keypath, char* valuename)
+std::shared_ptr<VK> Hive::GetValue(std::wstring keypath, std::wstring valuename)
 {
 	// returns a tuple containing data for a specific value from a keypath
 
@@ -63,74 +70,66 @@ std::tuple<char*, RegType, std::wstring> Hive::GetValue(std::string keypath, cha
 
 	for (int i = 0; i < key->values.size(); i++)
 	{
-		if (!strcmp(key->values[i]->GetName(), valuename))
+		if (!wcscmp(key->values[i]->GetName().c_str(), valuename.c_str()))
 		{
-			std::shared_ptr<VK> value = key->values[i];
-			std::tuple<char*, RegType, std::wstring> value_tuple;
+			return key->values[i];
 
-			value_tuple = std::make_tuple(value->GetName(), value->GetType(), value->GetData());
-
-			return value_tuple;
 		}
 	}
 
-	return std::make_tuple((char*)"", (RegType)-1, L"");
+	return std::make_shared<VK>(nullptr, -1);
 }
 
-std::vector<std::tuple<char*, RegType, std::wstring>> Hive::GetValues(std::string keypath)
+std::vector<std::shared_ptr<VK>> Hive::GetValues(std::wstring keypath)
 {
-	// each key has a tuple in the vector
-	// each tuple is in the form NAME, DATA_TYPE, DATA
-	// data must be cast to a char*
-	std::vector<std::tuple<char*, RegType, std::wstring>> values;
+	std::vector<std::shared_ptr<VK>> values;
 
 	std::shared_ptr<NK> key = ProcessSubkeys(keypath);
 	key->ProcessValues();
 
+
 	for (int i = 0; i < key->values.size(); i++)
 	{
-		std::shared_ptr<VK> value = key->values[i];
-		std::tuple<char*, RegType, std::wstring> value_tuple;
-
-		value_tuple = std::make_tuple(value->GetName(), value->GetType(), value->GetData());
-
-		values.push_back(value_tuple);
+		values.push_back(key->values[i]);
 	}
 
 	return values;
 }
 
-int Hive::GetRawValue(std::string keypath)
+int Hive::GetRawValue(std::wstring keypath)
 {
 	// returns the raw data for a value
 	return 0;
 }
 
-void Hive::GetSubkeys(std::string keypath)
+std::vector<std::wstring> Hive::GetSubkeys(std::wstring keypath)
 {
-	// function that prints all of the subkeys of a specific key
+	// function that returns a list of all of the subkeys of a specific key
 	std::shared_ptr<NK> key = ProcessSubkeys(keypath);
 
 	// fake call for an *imaginary* subkey to load the subkey vector
-	key->Tunnel("blank");
+	key->Tunnel(L"blank");
 
+	std::vector<std::wstring> keys;
 	for (int i = 0; i < key->subkeys.size(); i++)
 	{
-		std::cout << key->subkeys[i]->m_name << std::endl;
+		keys.push_back(key->subkeys[i]->GetName());
 	}
+
+	return keys;
 }
 
-std::shared_ptr<NK> Hive::ProcessSubkeys(std::string keypath)
+std::shared_ptr<NK> Hive::ProcessSubkeys(std::wstring keypath)
 {
 	// function that loads all of the subkeys for a specified path and returns a ptr to the final key
 	// with massive thanks to https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
-	std::string delimiter = "/";
-	std::vector<std::string> keys;
+	std::wstring delimiter = L"/";
+	std::vector<std::wstring> keys;
 	std::vector<std::shared_ptr<NK>> key_pointers;
 	key_pointers.push_back(m_root);
 
 	size_t pos = 0;
-	std::string token;
+	std::wstring token;
 		while ((pos = keypath.find(delimiter)) != std::string::npos) {
 		token = keypath.substr(0, pos);
 		keys.push_back(token);
@@ -144,7 +143,7 @@ std::shared_ptr<NK> Hive::ProcessSubkeys(std::string keypath)
 	for (int i = 0; i < keys.size(); i++)
 	{
 		// for each key name, search the previous keys subkey and add that to the end of the list
-		key_pointers.push_back(key_pointers[i]->Tunnel(keys[i].c_str()));
+		key_pointers.push_back(key_pointers[i]->Tunnel(keys[i]));
 	}
 
 	return key_pointers[key_pointers.size()-1];

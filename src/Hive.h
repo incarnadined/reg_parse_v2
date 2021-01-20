@@ -6,6 +6,7 @@
 #include <memory>
 #include <exception>
 #include <tuple>
+#include <string>
 
 #include "NK.h"
 
@@ -15,19 +16,21 @@ public:
 	Hive(const char* filepath);
 	~Hive();
 
-	std::string GetVersion();
+	std::wstring GetVersion();
+	unsigned int GetMajor();
+	unsigned int GetMinor();
 
 	// auto here should be replaced with a data type that contains the value data (struct)
 	auto GetFileData();
 
-	std::tuple<char*, RegType, std::wstring> GetValue(std::string keypath, char* valuename);
-	std::vector<std::tuple<char*, RegType, std::wstring>> GetValues(std::string keypath);
-	int GetRawValue(std::string keypath);
+	std::shared_ptr<VK> GetValue(std::wstring keypath, std::wstring valuename);
+	std::vector<std::shared_ptr<VK>> GetValues(std::wstring keypath);
+	int GetRawValue(std::wstring keypath);
 
-	void GetSubkeys(std::string keypath);
+	std::vector<std::wstring> GetSubkeys(std::wstring keypath);
 
 private:
-	std::shared_ptr<NK> ProcessSubkeys(std::string keypath);
+	std::shared_ptr<NK> ProcessSubkeys(std::wstring keypath);
 
 	std::ifstream fs;
 	std::shared_ptr<NK> m_root;

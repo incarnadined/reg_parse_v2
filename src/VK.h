@@ -9,7 +9,6 @@
 #include "includes.h"
 
 enum class RegType {
-	RegError = -1,
 	RegNone,
 	RegSz,
 	RegExpandSz,
@@ -32,7 +31,8 @@ public:
 	~VK();
 
 	RegType GetType();
-	char* GetName();
+	std::wstring GetName();
+	bool GetResidence();
 
 	unsigned char* LoadData();
 	std::wstring GetData();
@@ -46,9 +46,9 @@ private:
 	bool m_retrieved;
 	DataNode* data_node;
 
-	char* m_name;
 	int m_size;
 	unsigned short m_name_length;
+	std::wstring m_name;
 	unsigned int m_data;
 	unsigned short m_flags;
 	RegType m_type;

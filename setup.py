@@ -3,8 +3,8 @@ from setuptools import setup, Extension
 import pybind11
 from pybind11.setup_helpers import Pybind11Extension
     
-files = sorted(glob("../../src/*.cpp")) # Sort source files for reproducibility
-files.remove('../../src\\main.cpp') # Remove main.cpp (not part of module)
+files = sorted(glob("src\\*.cpp")) # Sort source files for reproducibility
+files.remove('src\\main.cpp') # Remove main.cpp (not part of module)
 
 ext_modules = [
     Pybind11Extension(
