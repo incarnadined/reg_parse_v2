@@ -1,6 +1,6 @@
 #include "VK.h"
 
-VK::VK(std::istream* fs, unsigned int offset) : m_offset(offset), m_fs(fs), m_resident(false), m_retrieved(false)
+VK::VK(std::ifstream* fs, unsigned int offset) : m_offset(offset), m_fs(fs), m_resident(false), m_retrieved(false)
 {
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x00, sizeof(int), &m_size);
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x06, sizeof(unsigned short), &m_name_length);
@@ -35,8 +35,6 @@ VK::VK(std::istream* fs, unsigned int offset) : m_offset(offset), m_fs(fs), m_re
 		Helper::Read(m_fs, 0x1000 + m_offset + 0x18, m_name_length, &m_name);
 	}
 
-	data_node = new DataNode();
-
 	// check if data is resident (first bit of m_data_length is set)
 	if (m_data_length >= 0x80000000)
 	{
@@ -47,7 +45,6 @@ VK::VK(std::istream* fs, unsigned int offset) : m_offset(offset), m_fs(fs), m_re
 
 VK::~VK()
 {
-	delete data_node;
 }
 
 RegType VK::GetType()
@@ -94,9 +91,7 @@ unsigned char* VK::LoadData()
 			return data_node->raw_data;
 		}
 
-		// delete the old empty data node ready for a new useful one
-		delete data_node;
-		data_node = new DataNode(m_fs, m_data);
+		data_node = std::make_unique<DataNode>(m_fs, m_data);
 		m_retrieved = true;
 
 		return data_node->raw_data;

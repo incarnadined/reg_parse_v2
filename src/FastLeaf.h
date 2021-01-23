@@ -7,7 +7,7 @@
 class FastLeaf
 {
 public:
-	FastLeaf(std::istream* fs, unsigned int offset);
+	FastLeaf(std::ifstream* fs, unsigned int offset);
 	~FastLeaf();
 
 	unsigned int* pointers;

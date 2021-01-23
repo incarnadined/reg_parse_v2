@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fstream>
+#include <memory>
 
 #include "includes.h"
 
@@ -8,7 +9,7 @@ class DataNode
 {
 public:
 	DataNode();
-	DataNode(std::istream* fs, unsigned int offset);
+	DataNode(std::ifstream* fs, unsigned int offset);
 	~DataNode();
 
 	unsigned int* pointers = new unsigned int;

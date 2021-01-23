@@ -12,16 +12,18 @@ PYBIND11_MODULE(reg_parse_v2, m) {
     py::class_<Hive>(m, "Hive")
         .def(py::init<const char*>())
         .def("GetVersion", &Hive::GetVersion)
-        .def("GetSubkeys", &Hive::GetSubkeys)
-        .def("GetValues", &Hive::GetValues)
-        .def("GetValue", &Hive::GetValue)
+        .def("GetSubkeys", &Hive::GetSubkeys, py::return_value_policy::reference)
+        .def("GetValues", &Hive::GetValues, py::return_value_policy::reference)
+        .def("GetValue", &Hive::GetValue, py::return_value_policy::reference)
 
         .def_property_readonly("major", &Hive::GetMajor)
         .def_property_readonly("minor", &Hive::GetMinor)
         ;
 
-    py::class_<NK, std::shared_ptr<NK>>(m, "NK")
+    py::class_<NK>(m, "NK")
+
         .def_property_readonly("name", &NK::GetName)
+        .def_property_readonly("parent", &NK::GetParent)
 
         .def("__repr__",
             [](NK& a) {
@@ -29,7 +31,7 @@ PYBIND11_MODULE(reg_parse_v2, m) {
             })
         ;
 
-    py::class_<VK, std::shared_ptr<VK>>(m, "VK")
+    py::class_<VK>(m, "VK")
         .def_property_readonly("name", &VK::GetName)
         .def_property_readonly("type", &VK::GetType)
 

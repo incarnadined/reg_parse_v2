@@ -23,16 +23,16 @@ public:
 	// auto here should be replaced with a data type that contains the value data (struct)
 	auto GetFileData();
 
-	std::shared_ptr<VK> GetValue(std::wstring keypath, std::wstring valuename);
-	std::vector<std::shared_ptr<VK>> GetValues(std::wstring keypath);
+	VK* GetValue(std::wstring keypath, std::wstring valuename);
+	std::vector<VK*> GetValues(std::wstring keypath);
 
-	std::vector<std::shared_ptr<NK>> GetSubkeys(std::wstring keypath);
+	std::vector<NK*> GetSubkeys(std::wstring keypath);
 
 private:
-	std::shared_ptr<NK> ProcessSubkeys(std::wstring keypath);
+	NK* ProcessSubkeys(std::wstring keypath);
 
 	std::ifstream fs;
-	std::shared_ptr<NK> m_root;
+	NK* m_root;
 
 	int m_magic_bytes;
 	unsigned int m_primary_sequence_number;

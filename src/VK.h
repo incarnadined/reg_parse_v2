@@ -27,7 +27,7 @@ enum class RegType {
 class VK
 {
 public:
-	VK(std::istream* fs, unsigned int offset);
+	VK(std::ifstream* fs, unsigned int offset);
 	~VK();
 
 	RegType GetType();
@@ -40,11 +40,11 @@ public:
 	unsigned int m_data_length;
 
 private:
-	std::istream* m_fs;
+	std::ifstream* m_fs;
 	unsigned int m_offset;
 	bool m_resident;
 	bool m_retrieved;
-	DataNode* data_node;
+	std::unique_ptr<DataNode> data_node;
 
 	int m_size;
 	unsigned short m_name_length;

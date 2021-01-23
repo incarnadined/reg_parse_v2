@@ -7,7 +7,7 @@
 class IndexLeaf
 {
 public:
-	IndexLeaf(std::istream* fs, unsigned int offset);
+	IndexLeaf(std::ifstream* fs, unsigned int offset);
 	~IndexLeaf();
 
 	unsigned int* pointers;

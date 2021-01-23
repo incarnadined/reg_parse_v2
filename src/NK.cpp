@@ -1,9 +1,10 @@
 #include "NK.h"
 
-NK::NK(std::istream* fs, unsigned int offset) : m_offset(offset), m_fs(fs)
+
+NK::NK(std::ifstream* fs, unsigned int offset) : m_offset(offset), m_fs(fs)
 {
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x00, sizeof(int), &m_size);
-	Helper::Read(m_fs, 0x1000 + m_offset + 0x08, sizeof(long long), &m_last_write);
+	Helper::Read(m_fs, 0x1000 + m_offset + 0x08, sizeof(unsigned long long), &m_last_write);
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x06, sizeof(unsigned short), &m_flags);
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x14, sizeof(int), &m_parent_offset);
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x18, sizeof(int), &m_subkey_count);
@@ -12,16 +13,8 @@ NK::NK(std::istream* fs, unsigned int offset) : m_offset(offset), m_fs(fs)
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x2C, sizeof(int), &m_value_offset);
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x4C, sizeof(int), &m_name_length);
 
-	flags.insert(std::make_pair(Flags::KEY_VOLATILE, m_flags & Flags::KEY_VOLATILE));
-	flags.insert(std::make_pair(Flags::KEY_HIVE_EXIT, m_flags & Flags::KEY_HIVE_EXIT));
-	flags.insert(std::make_pair(Flags::KEY_HIVE_ENTRY, m_flags & Flags::KEY_HIVE_ENTRY));
-	flags.insert(std::make_pair(Flags::KEY_HIVE_NO_DELETE, m_flags & Flags::KEY_HIVE_NO_DELETE));
-	flags.insert(std::make_pair(Flags::KEY_SYM_LINK, m_flags & Flags::KEY_SYM_LINK));
-	flags.insert(std::make_pair(Flags::KEY_COMP_NAME, m_flags & Flags::KEY_COMP_NAME));
-	flags.insert(std::make_pair(Flags::KEY_PREDEF_HANDLE, m_flags & Flags::KEY_PREDEF_HANDLE));
-
 	// if the name is ascii
-	if (flags[Flags::KEY_COMP_NAME])
+	if (m_flags & Flags::KEY_COMP_NAME)
 	{
 		char* temp_name = new char[(long long)m_name_length+1];
 
@@ -41,9 +34,18 @@ NK::NK(std::istream* fs, unsigned int offset) : m_offset(offset), m_fs(fs)
 
 NK::~NK()
 {
+	for (int i = 0; i < subkeys.size(); i++)
+	{
+		delete subkeys[i];
+	}
+
+	for (int i = 0; i < values.size(); i++)
+	{
+		delete values[i];
+	}
 }
 
-std::shared_ptr<NK> NK::Tunnel(std::wstring keyname)
+NK* NK::Tunnel(std::wstring keyname)
 {
 	// finds the next subkey from this key
 	// if this key this function has already been ran for this key, returns the entry from the vector
@@ -53,7 +55,7 @@ std::shared_ptr<NK> NK::Tunnel(std::wstring keyname)
 	// if the key has no subkeys then this key cannot exist
 	if (m_subkey_count == 0)
 	{
-		return std::shared_ptr<NK>();
+		return nullptr;
 	}
 
 	// if the subkeys vector is already populated, return a pointer to the relevant key
@@ -66,47 +68,76 @@ std::shared_ptr<NK> NK::Tunnel(std::wstring keyname)
 				return subkeys[i];
 			}
 		}
-		return std::shared_ptr<NK>();
+		return nullptr;
 	}
 
 	// if you get this far, there are subkeys yet to be found, so find them
 	// make the vector big enough to store all of the subkeys
 	subkeys.reserve(m_subkey_count);
 
-	// create fake var ready for deletion later
-	int* templist = new int;
+	NK* return_key = nullptr;
 	short temp_signature;
-	unsigned int* pointers = new unsigned int[0];
 	Helper::Read(m_fs, 0x1000 + m_subkey_offset + 0x4, sizeof(short), &temp_signature);
 	if (temp_signature == 26220)
 	{
 		FastLeaf* templist = new FastLeaf(m_fs, m_subkey_offset);
-		pointers = templist->pointers;
+		unsigned int* pointers = templist->pointers;
+
+		for (unsigned int i = 0; i < m_subkey_count; i++)
+		{
+			NK* temp_subkey = new NK(m_fs, pointers[i]);
+			temp_subkey->SetParent(this);
+			subkeys.push_back(temp_subkey);
+
+			if (!wcscmp(temp_subkey->GetName().c_str(), keyname.c_str()))
+			{
+				return_key = temp_subkey;
+			}
+		}
+
+		delete templist;
+
 	}
 	else if (temp_signature == 26732)
 	{
 		HashLeaf * templist = new HashLeaf(m_fs, m_subkey_offset);
-		pointers = templist->pointers;
+		unsigned int* pointers = templist->pointers;
+
+		for (unsigned int i = 0; i < m_subkey_count; i++)
+		{
+			NK* temp_subkey = new NK(m_fs, pointers[i]);
+			temp_subkey->SetParent(this);
+			subkeys.push_back(temp_subkey);
+
+			if (!wcscmp(temp_subkey->GetName().c_str(), keyname.c_str()))
+			{
+				return_key = temp_subkey;
+			}
+		}
+
+		delete templist;
+
 	}
 	else if (temp_signature == 26994)
 	{
 		IndexRoot* templist = new IndexRoot(m_fs, m_subkey_offset);
-		pointers = templist->pointers;
-	}
+		unsigned int* pointers = templist->pointers;
 
-	std::shared_ptr<NK> return_key;
-	for (unsigned int i = 0; i < m_subkey_count; i++)
-	{
-		std::shared_ptr<NK> temp_subkey = std::make_shared<NK>(m_fs, pointers[i]);
-		subkeys.push_back(temp_subkey);
-
-		if (!wcscmp(temp_subkey->GetName().c_str(), keyname.c_str()))
+		for (unsigned int i = 0; i < m_subkey_count; i++)
 		{
-			return_key = temp_subkey;
-		}
-	}
+			NK* temp_subkey = new NK(m_fs, pointers[i]);
+			temp_subkey->SetParent(this);
+			subkeys.push_back(temp_subkey);
 
-	delete templist;
+			if (!wcscmp(temp_subkey->GetName().c_str(), keyname.c_str()))
+			{
+				return_key = temp_subkey;
+			}
+		}
+
+		delete templist;
+
+	}
 
 	return return_key;
 }
@@ -125,7 +156,7 @@ void NK::ProcessValues()
 	DataNode* data_node = new DataNode(m_fs, m_value_offset);
 	for (unsigned int i = 0; i < m_value_count; i++)
 	{
-		std::shared_ptr<VK> temp_value = std::make_shared<VK>(m_fs, data_node->pointers[i]);
+		VK* temp_value = new VK(m_fs, data_node->pointers[i]);
 		values.push_back(temp_value);
 	}
 	delete data_node;
@@ -134,4 +165,14 @@ void NK::ProcessValues()
 std::wstring NK::GetName()
 {
 	return m_name;
+}
+
+void NK::SetParent(NK* parent_key)
+{
+	m_parent = parent_key;
+}
+
+NK* NK::GetParent()
+{
+	return m_parent;
 }

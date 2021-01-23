@@ -7,7 +7,7 @@
 class HashLeaf
 {
 public:
-	HashLeaf(std::istream* fs, unsigned int offset);
+	HashLeaf(std::ifstream* fs, unsigned int offset);
 	~HashLeaf();
 
 	unsigned int* pointers;

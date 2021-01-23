@@ -7,10 +7,12 @@ def test_GetVersion():
 
 def test_hive_major():
     hive = r.Hive("SYSTEM.hive")
+    
     assert hive.major == 1
 
 def test_hive_minor():
     hive = r.Hive("SYSTEM.hive")
+
     assert hive.minor == 5
 
 def test_getValue():
@@ -30,9 +32,15 @@ def test_getValues():
 
 def test_getSubkeys():
     hive = r.Hive("SYSTEM.hive")
+    subkeys = hive.GetSubkeys("CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}/ControlSet001/Control/")
+    assert subkeys[0].name == "ACPI"
+
+def test_getParent():
+    hive = r.Hive("SYSTEM.hive")
 
     subkeys = hive.GetSubkeys("CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}/ControlSet001/Control/")
-    print(subkeys)
+    for i in subkeys:
+        assert subkeys[i].parent.name == "Control"
 
 if __name__=="__main__":
     test_GetVersion()

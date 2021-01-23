@@ -11,7 +11,7 @@
 class IndexRoot
 {
 public:
-	IndexRoot(std::istream* fs, unsigned int offset);
+	IndexRoot(std::ifstream* fs, unsigned int offset);
 	~IndexRoot();
 
 	std::vector<unsigned int> pointersv;

@@ -4,7 +4,7 @@ DataNode::DataNode()
 {
 }
 
-DataNode::DataNode(std::istream* fs, unsigned int offset)
+DataNode::DataNode(std::ifstream* fs, unsigned int offset)
 {
 	Helper::Read(fs, 0x1000 + offset, sizeof(int), &m_size);
 

@@ -1,6 +1,6 @@
 #include "HashLeaf.h"
 
-HashLeaf::HashLeaf(std::istream* fs, unsigned int offset)
+HashLeaf::HashLeaf(std::ifstream *fs, unsigned int offset)
 {
 	Helper::Read(fs, 0x1000 + offset, sizeof(int), &m_size);
 	Helper::Read(fs, 0x1000 + offset + 0x4, sizeof(short), &m_signature);

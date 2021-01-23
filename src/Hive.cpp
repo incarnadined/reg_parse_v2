@@ -27,11 +27,12 @@ Hive::Hive(const char* filepath) : m_magic_bytes(0), m_root_cell_offset(0)
 	Helper::Read(&fs, 0x18, sizeof(unsigned int), &m_minor_version_number);
 
 	Helper::Read(&fs, 0x24, sizeof(unsigned int), &m_root_cell_offset);
-	m_root = std::make_shared<NK>(&fs, m_root_cell_offset);
+	m_root = new NK(&fs, m_root_cell_offset);
 }
 
 Hive::~Hive()
 {
+	delete m_root;
 }
 
 std::wstring Hive::GetVersion()
@@ -61,11 +62,10 @@ auto Hive::GetFileData()
 	// file name
 }
 
-std::shared_ptr<VK> Hive::GetValue(std::wstring keypath, std::wstring valuename)
+VK* Hive::GetValue(std::wstring keypath, std::wstring valuename)
 {
-	// returns a tuple containing data for a specific value from a keypath
+	NK* key = ProcessSubkeys(keypath);
 
-	std::shared_ptr<NK> key = ProcessSubkeys(keypath);
 	key->ProcessValues();
 
 	for (int i = 0; i < key->values.size(); i++)
@@ -76,15 +76,16 @@ std::shared_ptr<VK> Hive::GetValue(std::wstring keypath, std::wstring valuename)
 
 		}
 	}
+	
 
-	return std::make_shared<VK>(nullptr, -1);
+	return nullptr;
 }
 
-std::vector<std::shared_ptr<VK>> Hive::GetValues(std::wstring keypath)
+std::vector<VK*> Hive::GetValues(std::wstring keypath)
 {
-	std::vector<std::shared_ptr<VK>> values;
+	std::vector<VK*> values;
 
-	std::shared_ptr<NK> key = ProcessSubkeys(keypath);
+	NK* key = ProcessSubkeys(keypath);
 	key->ProcessValues();
 
 
@@ -96,15 +97,16 @@ std::vector<std::shared_ptr<VK>> Hive::GetValues(std::wstring keypath)
 	return values;
 }
 
-std::vector<std::shared_ptr<NK>> Hive::GetSubkeys(std::wstring keypath)
+std::vector<NK*> Hive::GetSubkeys(std::wstring keypath)
 {
 	// function that returns a list of all of the subkeys of a specific key
-	std::shared_ptr<NK> key = ProcessSubkeys(keypath);
+	std::vector<NK*> keys;
+
+	NK* key = ProcessSubkeys(keypath);
 
 	// fake call for an *imaginary* subkey to load the subkey vector
 	key->Tunnel(L"blank");
 
-	std::vector<std::shared_ptr<NK>> keys;
 	for (int i = 0; i < key->subkeys.size(); i++)
 	{
 		keys.push_back(key->subkeys[i]);
@@ -113,13 +115,13 @@ std::vector<std::shared_ptr<NK>> Hive::GetSubkeys(std::wstring keypath)
 	return keys;
 }
 
-std::shared_ptr<NK> Hive::ProcessSubkeys(std::wstring keypath)
+NK* Hive::ProcessSubkeys(std::wstring keypath)
 {
 	// function that loads all of the subkeys for a specified path and returns a ptr to the final key
 	// with massive thanks to https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
 	std::wstring delimiter = L"/";
 	std::vector<std::wstring> keys;
-	std::vector<std::shared_ptr<NK>> key_pointers;
+	std::vector<NK*> key_pointers;
 	key_pointers.push_back(m_root);
 
 	size_t pos = 0;
@@ -133,7 +135,6 @@ std::shared_ptr<NK> Hive::ProcessSubkeys(std::wstring keypath)
 	// remove the root key from the list of keys to find
 	keys.erase(keys.begin());
 
-	// don't look for the imaginary subkey of the final key
 	for (int i = 0; i < keys.size(); i++)
 	{
 		// for each key name, search the previous keys subkey and add that to the end of the list

@@ -13,18 +13,21 @@
 class NK
 {
 public:
-	NK(std::istream* fs, unsigned int offset);
+	NK(std::ifstream* fs, unsigned int offset);
 	~NK();
 
-	std::shared_ptr<NK> Tunnel(std::wstring keyname);
+	NK* Tunnel(std::wstring keyname);
 	void ProcessValues();
-	std::wstring GetName();
 
-	std::vector<std::shared_ptr<NK>> subkeys;
-	std::vector<std::shared_ptr<VK>> values;
+	std::wstring GetName();
+	void SetParent(NK* parent_key);
+	NK* GetParent();
+
+	std::vector<NK*> subkeys;
+	std::vector<VK*> values;
 
 private:
-	std::istream* m_fs;
+	std::ifstream* m_fs;
 	unsigned int m_offset;
 
 	enum class Flags : unsigned short {
@@ -42,12 +45,11 @@ private:
 	}
 
 	std::wstring m_name;
-	std::shared_ptr<NK> parent;
-	std::map<Flags, bool> flags;
+	NK* m_parent;
 
 	int m_size;
 	unsigned short m_flags;
-	long long m_last_write;
+	unsigned long long m_last_write;
 	unsigned int m_parent_offset;
 	unsigned int m_subkey_count;
 	unsigned int m_subkey_offset;
