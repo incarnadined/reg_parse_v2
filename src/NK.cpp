@@ -5,6 +5,7 @@ NK::NK(std::ifstream* fs, unsigned int offset) : m_offset(offset), m_fs(fs)
 {
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x00, sizeof(int), &m_size);
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x08, sizeof(unsigned long long), &m_last_write);
+	Helper::printDate(m_last_write);
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x06, sizeof(unsigned short), &m_flags);
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x14, sizeof(int), &m_parent_offset);
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x18, sizeof(int), &m_subkey_count);

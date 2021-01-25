@@ -9,6 +9,8 @@ namespace py = pybind11;
 PYBIND11_MODULE(reg_parse_v2, m) {
     m.doc() = "A windows registry parsing module for python";
 
+    m.def("printDate", &Helper::printDate);
+
     py::class_<Hive>(m, "Hive")
         .def(py::init<const char*>())
         .def("GetVersion", &Hive::GetVersion)
