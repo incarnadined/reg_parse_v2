@@ -21,7 +21,7 @@ Hive::Hive(const char* filepath) : m_magic_bytes(0), m_root_cell_offset(0)
 
 	// read the last written timestamp of the file
 	Helper::Read(&fs, 0x0C, sizeof(long long), &m_last_written);
-	Helper::printDate(m_last_written);
+	Helper::getDateTime(m_last_written);
 
 	// read the major and minor version numbers of the hive
 	Helper::Read(&fs, 0x14, sizeof(unsigned int), &m_major_version_number);

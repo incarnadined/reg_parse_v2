@@ -13,7 +13,19 @@ int Helper::LeafHash()
 	return 0;
 }
 
-std::wstring Helper::printDate(unsigned long long filetime)
+std::wstring Helper::zeroPadding(std::wstring number, unsigned char len)
+{
+	// only works for positive numbers
+
+	while (number.length() < len)
+	{
+		number.insert(0, len - number.length(), '0');
+	}
+
+	return number;
+}
+
+std::wstring Helper::getDate(unsigned long long& filetime)
 {
 	// function that returns a string with the date from a windows FILETIME format
 	std::map<int, int> monthkey;
@@ -68,6 +80,39 @@ std::wstring Helper::printDate(unsigned long long filetime)
 	outputTime = std::to_wstring(date) + L"-" + std::to_wstring(month) + L"-" + std::to_wstring(year);
 	return outputTime;
 }
+
+std::wstring Helper::getTime(unsigned long long filetime)
+{
+	// takes the filetime output from getDate and gets the time
+	// the filetime passed in should already have the day/month/year taken away
+	std::wstring outputTime;
+
+	unsigned char hours = 0;
+	unsigned char minutes = 0;
+	unsigned char seconds = 0;
+	std::wstring fraction = std::to_wstring(filetime).substr(5, 7);
+	float microseconds = 0.F;
+
+	hours += filetime / 3.6e10;
+	filetime %= 36000000000;
+
+	minutes += filetime / 6e8;
+	filetime %= 600000000;
+
+	seconds += filetime / 1e7;
+
+	outputTime = zeroPadding(std::to_wstring(hours), 2) + L":" + zeroPadding(std::to_wstring(minutes), 2) + L":" + zeroPadding(std::to_wstring(seconds), 2) + L"." + fraction;
+	return outputTime;
+}
+
+std::wstring Helper::getDateTime(unsigned long long filetime)
+{
+	std::wstring date = getDate(filetime);
+	std::wstring time = getTime(filetime);
+
+	return date+time;
+}
+
 
 std::wstring Helper::CharToWstring(const char* string, size_t len)
 {

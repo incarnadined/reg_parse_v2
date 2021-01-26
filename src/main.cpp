@@ -4,7 +4,6 @@
 #include "Hive.h"
 
 int main() {
-	Helper::printDate(3.1556736e+16);
 	const char filepath[] = "G:\\Coding Projects\\reg_parse_v2\\SYSTEM.hive";
 	Hive* hive = new Hive(filepath);
 
