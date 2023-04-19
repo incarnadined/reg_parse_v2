@@ -112,7 +112,7 @@ std::wstring Helper::getDateTime(unsigned long long filetime)
 	std::wstring date = getDate(filetime);
 	std::wstring time = getTime(filetime);
 
-	return date+time;
+	return date + L" " + time;
 }
 
 

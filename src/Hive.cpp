@@ -120,13 +120,18 @@ std::vector<VK*> Hive::GetValues(NK* key)
 	return values;
 }
 
-std::vector<NK*> Hive::GetSubkeys(std::wstring keypath)
+NK* Hive::GetKey(NK* parent, std::wstring keypath)
 {
 	// function that returns a list of all of the subkeys of a specific key
-	std::vector<NK*> keys;
 
-	NK* key = ProcessSubkeys(keypath);
-	return GetSubkeys(key);
+	return ProcessSubkeys(parent, keypath);
+}
+
+NK* Hive::GetKey(std::wstring keypath)
+{
+	// function that returns a list of all of the subkeys of a specific key
+
+	return ProcessSubkeys(m_root, keypath);
 }
 
 std::vector<NK*> Hive::GetSubkeys(NK* parent)
@@ -148,6 +153,15 @@ std::vector<NK*> Hive::GetSubkeys(NK* parent)
 	return keys;
 }
 
+std::vector<NK*> Hive::GetSubkeys(std::wstring keypath)
+{
+	// function that returns a list of all of the subkeys of a specific key
+	std::vector<NK*> keys;
+
+	NK* key = ProcessSubkeys(keypath);
+	return GetSubkeys(key);
+}
+
 NK* Hive::GetRoot()
 {
 	return m_root;
@@ -155,28 +169,36 @@ NK* Hive::GetRoot()
 
 NK* Hive::ProcessSubkeys(std::wstring keypath)
 {
+	return ProcessSubkeys(m_root, keypath);
+}
+
+NK* Hive::ProcessSubkeys(NK* parent, std::wstring relativeKeyPath)
+{
 	// function that loads all of the subkeys for a specified path and returns a ptr to the final key
 	// with massive thanks to https://stackoverflow.com/questions/14265581/parse-split-a-string-in-c-using-string-delimiter-standard-c
 	std::wstring delimiter = L"/";
 	std::vector<std::wstring> keys;
 	std::vector<NK*> key_pointers;
-	key_pointers.push_back(m_root);
+	key_pointers.push_back(parent);
+
+	if (relativeKeyPath.back() != L'/')
+		relativeKeyPath.append(L"/");
 
 	size_t pos = 0;
 	std::wstring token;
-	while ((pos = keypath.find(delimiter)) != std::string::npos) {
-		token = keypath.substr(0, pos);
+	while ((pos = relativeKeyPath.find(delimiter)) != std::string::npos) {
+		token = relativeKeyPath.substr(0, pos);
 		keys.push_back(token);
-		keypath.erase(0, pos + delimiter.length());
+		relativeKeyPath.erase(0, pos + delimiter.length());
 	}
 
 	if (keys.size() == 0) {
-		throw std::exception("Invalid file path");
+		throw std::exception("Invalid key path");
 		return nullptr;
 	}
 
 	// remove the root key from the list of keys to find
-	keys.erase(keys.begin());
+	// keys.erase(keys.begin());
 
 	for (int i = 0; i < keys.size(); i++)
 	{
@@ -184,5 +206,8 @@ NK* Hive::ProcessSubkeys(std::wstring keypath)
 		key_pointers.push_back(key_pointers[i]->Tunnel(keys[i]));
 	}
 
-	return key_pointers[key_pointers.size()-1];
+	if (key_pointers[key_pointers.size() - 1] == nullptr)
+		key_pointers.pop_back();
+
+	return key_pointers[key_pointers.size() - 1];
 }

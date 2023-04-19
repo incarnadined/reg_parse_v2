@@ -4,12 +4,15 @@
 
 VK::VK(std::ifstream* fs, unsigned int offset) : m_offset(offset), m_fs(fs), m_resident(false), m_retrieved(false)
 {
+	unsigned int type;
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x00, sizeof(int), &m_size);
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x06, sizeof(unsigned short), &m_name_length);
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x08, sizeof(int), &m_data_length);
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x0C, sizeof(unsigned int), &m_data);
-	Helper::Read(m_fs, 0x1000 + m_offset + 0x10, sizeof(RegType), &m_type);
+	Helper::Read(m_fs, 0x1000 + m_offset + 0x10, sizeof(unsigned int), &type);
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x14, sizeof(unsigned short), &m_flags);
+
+	m_type = static_cast<RegType>(type & 0x00FF); // if the value has the upper bytes set then why on earth? pretend they aren't
 
 	// if no name is stored then the name should be (Default)
 	if (m_name_length == 0)
@@ -106,9 +109,7 @@ std::wstring VK::GetData()
 {
 	switch (m_type)
 	{
-	case RegType::RegNone:
-		break;
-
+	case RegType::RegExpandSz:
 	case RegType::RegSz:
 	{
 		unsigned char* data = this->LoadData();
@@ -118,17 +119,11 @@ std::wstring VK::GetData()
 		break;
 	}
 
-	case RegType::RegExpandSz:
-	{
-		std::wstring* data = (std::wstring*)this->LoadData();
-		return *data;
-		break;
-	}
-
+	case RegType::RegNone:
 	case RegType::RegBinary:
 	{
 		std::wstringstream stream;
-		unsigned int* data = (unsigned int*)this->LoadData();
+		unsigned short* data = (unsigned short*)this->LoadData();
 		stream << std::hex << *data;
 		return stream.str();
 		break;
@@ -143,10 +138,9 @@ std::wstring VK::GetData()
 
 	case RegType::RegDwordBigEndian:
 	{
-		//write some big endian code
-
 		unsigned char* buffer = this->LoadData();
-		//int num = (int)&buffer[0] | (int)&buffer[1] << 8 | (int)&buffer[2] << 16 | (int)&buffer[3] << 24;
+		int num = (int)&buffer[0] | (int)&buffer[1] << 8 | (int)&buffer[2] << 16 | (int)&buffer[3] << 24;
+		return std::to_wstring(num);
 		break;
 	}
 
@@ -202,7 +196,8 @@ std::wstring VK::GetData()
 
 	case RegType::RegFileTime:
 	{
-		//TIME* data = (unsigned long long*)this->LoadData();
+		unsigned long long* data = (unsigned long long*)this->LoadData();
+		return Helper::getDateTime(*data);
 		break;
 	}
 	}

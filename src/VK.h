@@ -9,19 +9,19 @@
 #include "includes.h"
 
 enum class RegType {
-	RegNone,
-	RegSz,
-	RegExpandSz,
-	RegBinary,
-	RegDword,
-	RegDwordBigEndian,
-	RegLink,
-	RegMultiSz,
-	RegResourceList,
-	RegFullResourceDescription,
-	RegResourceRequirementsList,
-	RegQWord,
-	RegFileTime = 0x10
+	RegNone = 0x0000,
+	RegSz = 0x0001,
+	RegExpandSz = 0x0002,
+	RegBinary = 0x0003,
+	RegDword = 0x0004,
+	RegDwordBigEndian = 0x0005,
+	RegLink = 0x0006,
+	RegMultiSz = 0x0007,
+	RegResourceList = 0x0008,
+	RegFullResourceDescription = 0x0009,
+	RegResourceRequirementsList = 0x000A,
+	RegQWord = 0x000B,
+	RegFileTime = 0x0010
 };
 
 class VK

@@ -27,12 +27,15 @@ public:
 	std::vector<VK*> GetValues(std::wstring keypath);
 	std::vector<VK*> GetValues(NK* key);
 
-	std::vector<NK*> GetSubkeys(std::wstring keypath);
+	NK* GetKey(NK* parent, std::wstring keypath);
+	NK* GetKey(std::wstring keypath);
 	std::vector<NK*> GetSubkeys(NK* parent);
+	std::vector<NK*> GetSubkeys(std::wstring keypath);
 	NK* GetRoot();
 
 private:
 	NK* ProcessSubkeys(std::wstring keypath);
+	NK* ProcessSubkeys(NK* parent, std::wstring relativeKeyPath);
 
 	std::ifstream fs;
 	NK* m_root;

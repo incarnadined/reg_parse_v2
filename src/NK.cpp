@@ -50,7 +50,7 @@ NK::~NK()
 
 NK* NK::Tunnel(std::wstring keyname)
 {
-	// finds the next subkey from this key
+	// finds the next subkey from the current (this) key
 	// if this key this function has already been ran for this key, returns the entry from the vector
 	// returns a pointer to the subkey with the given name
 	// returns -1 if the key was not found
