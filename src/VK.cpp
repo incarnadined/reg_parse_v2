@@ -1,5 +1,7 @@
 #include "VK.h"
 
+#include <numeric>
+
 VK::VK(std::ifstream* fs, unsigned int offset) : m_offset(offset), m_fs(fs), m_resident(false), m_retrieved(false)
 {
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x00, sizeof(int), &m_size);
@@ -156,7 +158,22 @@ std::wstring VK::GetData()
 
 	case RegType::RegMultiSz:
 	{
-		//i still don't want to
+		std::vector<std::wstring> strings;
+		unsigned char* data = this->LoadData();
+		unsigned char* ptr = data;
+		while (data - ptr < m_data_length - 2) { // the last two bytes are null to mark the end
+			strings.push_back(std::wstring((wchar_t *)data));
+			data += strings[strings.size() - 1].size() * 2 + 2;
+		}
+		return std::accumulate(
+			std::next(strings.begin()),
+			strings.end(),
+			strings[0],
+			[](std::wstring a, std::wstring b) {
+				return a + L", " + b;
+			}
+		);
+		break;
 	}
 
 	case RegType::RegResourceList:
@@ -189,4 +206,6 @@ std::wstring VK::GetData()
 		break;
 	}
 	}
+
+	return L"(Not implemented)";
 }
