@@ -42,7 +42,7 @@ std::wstring Helper::getDate(unsigned long long& filetime)
 	monthkey.insert(std::make_pair(11, 30));
 	monthkey.insert(std::make_pair(12, 31));
 
-	std::wstring outputTime;
+	std::wstring outputDate;
 
 	unsigned short year = 1601;
 	short date = 1;
@@ -77,8 +77,8 @@ std::wstring Helper::getDate(unsigned long long& filetime)
 	// undo the last run that took the date into negative
 	date += (((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) && (month == 2)) ? 29 : monthkey[month];
 
-	outputTime = std::to_wstring(date) + L"-" + std::to_wstring(month) + L"-" + std::to_wstring(year);
-	return outputTime;
+	outputDate = std::to_wstring(date) + L"-" + std::to_wstring(month) + L"-" + std::to_wstring(year);
+	return outputDate;
 }
 
 std::wstring Helper::getTime(unsigned long long filetime)
@@ -90,7 +90,9 @@ std::wstring Helper::getTime(unsigned long long filetime)
 	unsigned char hours = 0;
 	unsigned char minutes = 0;
 	unsigned char seconds = 0;
-	std::wstring fraction = std::to_wstring(filetime).substr(5, 7);
+	std::wstring fraction = std::to_wstring(filetime);
+	if (fraction.size() > 7)
+		fraction = fraction.substr(5, 7);
 	float microseconds = 0.F;
 
 	hours += filetime / 3.6e10;

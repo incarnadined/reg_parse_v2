@@ -4,7 +4,7 @@
 #include "Hive.h"
 
 int main() {
-	const char filepath[] = "G:\\Coding Projects\\reg_parse_v2\\SYSTEM.hive";
+	const char filepath[] = "hives/SYSTEM";
 	Hive* hive = new Hive(filepath);
 
 	// must end with a forward slash

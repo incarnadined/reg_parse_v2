@@ -1,14 +1,20 @@
 #include "Hive.h"
 
+#include <stdexcept>
+
 Hive::Hive(const char* filepath) : m_magic_bytes(0), m_root_cell_offset(0)
 {
 	fs.open(filepath, std::ifstream::in | std::ifstream::binary);
+	if (fs.fail())
+	{
+		throw std::exception("File failed to open");
+	}
 
 	Helper::Read(&fs, 0x00, sizeof(int), &m_magic_bytes);
 	if (m_magic_bytes != 1718052210)
 	{
 		//ERROR!!! file magic bytes are not regf
-		throw;
+		throw std::exception("File loaded but was not a hive (bad magic bytes)");
 	}
 
 	Helper::Read(&fs, 0x04, sizeof(unsigned int), &m_primary_sequence_number);
@@ -16,7 +22,7 @@ Hive::Hive(const char* filepath) : m_magic_bytes(0), m_root_cell_offset(0)
 	if (m_primary_sequence_number != m_secondary_sequence_number)
 	{
 		// the hive is dirty and should be cleaned with transaction logs
-		//throw;
+		// throw std::exception("Hive is dirty");
 	}
 
 	// read the last written timestamp of the file
@@ -33,6 +39,7 @@ Hive::Hive(const char* filepath) : m_magic_bytes(0), m_root_cell_offset(0)
 
 Hive::~Hive()
 {
+	fs.close();
 	delete m_root;
 }
 

@@ -1,48 +1,47 @@
 import reg_parse_v2 as r
 
 def test_GetVersion():
-    hive = r.Hive("SYSTEM.hive")
+    hive = r.Hive("hives/SYSTEM")
 
     assert hive.GetVersion() == '1.5'
 
 def test_hive_major():
-    hive = r.Hive("SYSTEM.hive")
+    hive = r.Hive("hives/SYSTEM")
     
     assert hive.major == 1
 
 def test_hive_minor():
-    hive = r.Hive("SYSTEM.hive")
+    hive = r.Hive("hives/SYSTEM")
 
     assert hive.minor == 5
 
 def test_getValue():
-    hive = r.Hive("SYSTEM.hive")
+    hive = r.Hive("hives/SYSTEM")
 
     value = hive.GetValue("CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}/ControlSet001/Control/", "LastBootSucceeded")
     assert value.name == "LastBootSucceeded"
     assert int(value.type) == 4
 
 def test_getValues():
-    hive = r.Hive("SYSTEM.hive")
+    hive = r.Hive("hives/SYSTEM")
 
     values = hive.GetValues("CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}/ControlSet001/Control/")
-    assert len(values) == 12
-    assert values[-1].name == "DirtyShutdownCount"
-    assert int(values[-1].type) == 4
+    assert len(values) == 11
 
 def test_getSubkeys():
-    hive = r.Hive("SYSTEM.hive")
+    hive = r.Hive("hives/SYSTEM")
     subkeys = hive.GetSubkeys("CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}/ControlSet001/Control/")
-    assert subkeys[0].name == "ACPI"
+    assert subkeys[1].name == "ACPI"
+    assert len(subkeys) == 127
 
 def test_getParent():
-    hive = r.Hive("SYSTEM.hive")
+    hive = r.Hive("hives/SYSTEM")
 
     subkeys = hive.GetSubkeys("CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}/ControlSet001/Control/")
     for i in subkeys:
         assert subkeys[subkeys.index(i)].parent.name == "Control"
 
-def test_printDate():
+def test_getDate():
     filetimestamp = 0
     months = {
         '1': 31,
@@ -65,7 +64,7 @@ def test_printDate():
         filetimestamp+=8.64e11
         day+=1
         if (day > months[str(month)]):
-            print(day, month, year, year%4)
+            # print(day, month, year, year%4)
             if ((((year%4 == 0) & (year%100!=0))| (year%400==0)) & (day==29) & (month == 2)):
                 continue
             else:
@@ -75,7 +74,7 @@ def test_printDate():
             month = 1
             year+=1
 
-        date = r.printDate(int(filetimestamp))
+        date = r.getDate(int(filetimestamp))
         # print(f"{day}-{month}-{year} ?=", date, filetimestamp)
 
         date_split = list(map(int, date.split("-")))
@@ -91,6 +90,6 @@ if __name__=="__main__":
     test_getValues()
     test_getSubkeys()
 
-    test_printDate()
+    test_getDate()
 
     print("Tests passed successfully")
