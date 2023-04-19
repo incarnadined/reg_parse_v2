@@ -34,7 +34,7 @@ Hive::Hive(const char* filepath) : m_magic_bytes(0), m_root_cell_offset(0)
 	Helper::Read(&fs, 0x18, sizeof(unsigned int), &m_minor_version_number);
 
 	Helper::Read(&fs, 0x24, sizeof(unsigned int), &m_root_cell_offset);
-	m_root = new NK(&fs, m_root_cell_offset);
+	m_root = new NK(this, &fs, m_root_cell_offset);
 }
 
 Hive::~Hive()
@@ -105,22 +105,52 @@ std::vector<VK*> Hive::GetValues(std::wstring keypath)
 	return values;
 }
 
+std::vector<VK*> Hive::GetValues(NK* key)
+{
+	std::vector<VK*> values;
+
+	key->ProcessValues();
+
+
+	for (int i = 0; i < key->values.size(); i++)
+	{
+		values.push_back(key->values[i]);
+	}
+
+	return values;
+}
+
 std::vector<NK*> Hive::GetSubkeys(std::wstring keypath)
 {
 	// function that returns a list of all of the subkeys of a specific key
 	std::vector<NK*> keys;
 
 	NK* key = ProcessSubkeys(keypath);
+	return GetSubkeys(key);
+}
+
+std::vector<NK*> Hive::GetSubkeys(NK* parent)
+{
+	// function that returns a list of all of the subkeys of a specific key
+	std::vector<NK*> keys;
+
+	if (parent == nullptr)
+		return keys;
 
 	// fake call for an *imaginary* subkey to load the subkey vector
-	key->Tunnel(L"blank");
+	parent->Tunnel(L"blank");
 
-	for (int i = 0; i < key->subkeys.size(); i++)
+	for (int i = 0; i < parent->subkeys.size(); i++)
 	{
-		keys.push_back(key->subkeys[i]);
+		keys.push_back(parent->subkeys[i]);
 	}
 
 	return keys;
+}
+
+NK* Hive::GetRoot()
+{
+	return m_root;
 }
 
 NK* Hive::ProcessSubkeys(std::wstring keypath)
@@ -134,10 +164,15 @@ NK* Hive::ProcessSubkeys(std::wstring keypath)
 
 	size_t pos = 0;
 	std::wstring token;
-		while ((pos = keypath.find(delimiter)) != std::string::npos) {
+	while ((pos = keypath.find(delimiter)) != std::string::npos) {
 		token = keypath.substr(0, pos);
 		keys.push_back(token);
 		keypath.erase(0, pos + delimiter.length());
+	}
+
+	if (keys.size() == 0) {
+		throw std::exception("Invalid file path");
+		return nullptr;
 	}
 
 	// remove the root key from the list of keys to find

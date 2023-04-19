@@ -1,7 +1,9 @@
 #include "NK.h"
 
+#include "Hive.h"
 
-NK::NK(std::ifstream* fs, unsigned int offset) : m_offset(offset), m_fs(fs)
+
+NK::NK(Hive* hive, std::ifstream* fs, unsigned int offset) : m_hive(hive), m_offset(offset), m_fs(fs)
 {
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x00, sizeof(int), &m_size);
 	Helper::Read(m_fs, 0x1000 + m_offset + 0x08, sizeof(unsigned long long), &m_last_write);
@@ -86,7 +88,7 @@ NK* NK::Tunnel(std::wstring keyname)
 
 		for (unsigned int i = 0; i < m_subkey_count; i++)
 		{
-			NK* temp_subkey = new NK(m_fs, pointers[i]);
+			NK* temp_subkey = new NK(m_hive, m_fs, pointers[i]);
 			temp_subkey->SetParent(this);
 			subkeys.push_back(temp_subkey);
 
@@ -106,7 +108,7 @@ NK* NK::Tunnel(std::wstring keyname)
 
 		for (unsigned int i = 0; i < m_subkey_count; i++)
 		{
-			NK* temp_subkey = new NK(m_fs, pointers[i]);
+			NK* temp_subkey = new NK(m_hive, m_fs, pointers[i]);
 			temp_subkey->SetParent(this);
 			subkeys.push_back(temp_subkey);
 
@@ -126,7 +128,7 @@ NK* NK::Tunnel(std::wstring keyname)
 
 		for (unsigned int i = 0; i < m_subkey_count; i++)
 		{
-			NK* temp_subkey = new NK(m_fs, pointers[i]);
+			NK* temp_subkey = new NK(m_hive, m_fs, pointers[i]);
 			temp_subkey->SetParent(this);
 			subkeys.push_back(temp_subkey);
 
@@ -173,7 +175,37 @@ void NK::SetParent(NK* parent_key)
 	m_parent = parent_key;
 }
 
+NK* NK::GetSubkey(std::wstring keyName)
+{
+	return Tunnel(keyName);
+}
+
+std::vector<NK*> NK::GetSubkeys()
+{
+	return m_hive->GetSubkeys(this);
+}
+
+std::vector<VK*> NK::GetValues()
+{
+	return m_hive->GetValues(this);
+}
+
 NK* NK::GetParent()
 {
 	return m_parent;
+}
+
+unsigned long long NK::GetLastWrite()
+{
+	return m_last_write;
+}
+
+unsigned int NK::GetSubkeyCount()
+{
+	return m_subkey_count;
+}
+
+unsigned int NK::GetValueCount()
+{
+	return m_value_count;
 }

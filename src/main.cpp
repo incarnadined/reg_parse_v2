@@ -7,8 +7,18 @@ int main() {
 	const char filepath[] = "hives/SYSTEM";
 	Hive* hive = new Hive(filepath);
 
+	NK* root= hive->GetRoot();
+	NK* key = root->GetSubkey(L"Setup");
+	std::vector<VK*> data = key->GetValues();
+	for (int i = 0; i < data.size(); i++)
+	{
+		std::wcout << data[i]->GetName() << " " << data[i]->GetData() << std::endl;
+	}
+
+	std::cout << std::endl;
+
 	// must end with a forward slash
-	const char* key = "CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}/ControlSet001/Control/";
+	/*const char* key = "CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}/ControlSet001/Control/";
 	size_t key_size = 82;
 
 	std::cout << "The subkeys of " << key << " are:" << std::endl;
@@ -34,7 +44,7 @@ int main() {
 	for (int i = 0; i < values.size(); i++)
 	{
 		std::wcout << values[i]->GetName() << L" - Type=" << int(values[i]->GetType()) << L" - Resident=" << values[i]->GetResidence() << std::endl;
-	}
+	}*/
 
 	std::cin.get();
 

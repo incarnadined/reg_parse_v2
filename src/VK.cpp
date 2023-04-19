@@ -109,8 +109,10 @@ std::wstring VK::GetData()
 
 	case RegType::RegSz:
 	{
-		std::wstring* data = (std::wstring *)this->LoadData();
-		return *data;
+		unsigned char* data = this->LoadData();
+		if (*data == 0)
+			return std::wstring(L"(Default)");
+		return std::wstring((wchar_t *)data);
 		break;
 	}
 

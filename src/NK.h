@@ -10,18 +10,28 @@
 #include "includes.h"
 #include "VK.h"
 
+class Hive;
+
 class NK
 {
 public:
-	NK(std::ifstream* fs, unsigned int offset);
+	NK(Hive* hive, std::ifstream* fs, unsigned int offset);
 	~NK();
 
 	NK* Tunnel(std::wstring keyname);
 	void ProcessValues();
 
 	std::wstring GetName();
-	void SetParent(NK* parent_key);
 	NK* GetParent();
+	unsigned long long GetLastWrite();
+	unsigned int GetSubkeyCount();
+	unsigned int GetValueCount();
+
+	void SetParent(NK* parent_key);
+
+	NK* GetSubkey(std::wstring keyName);
+	std::vector<NK*> GetSubkeys();
+	std::vector<VK*> GetValues();
 
 	std::vector<NK*> subkeys;
 	std::vector<VK*> values;
@@ -46,6 +56,7 @@ private:
 
 	std::wstring m_name;
 	NK* m_parent;
+	Hive* m_hive;
 
 	int m_size;
 	unsigned short m_flags;

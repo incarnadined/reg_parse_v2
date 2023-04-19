@@ -15,18 +15,23 @@ PYBIND11_MODULE(reg_parse_v2, m) {
     py::class_<Hive>(m, "Hive")
         .def(py::init<const char*>())
         .def("GetVersion", &Hive::GetVersion)
-        .def("GetSubkeys", &Hive::GetSubkeys, py::return_value_policy::reference)
-        .def("GetValues", &Hive::GetValues, py::return_value_policy::reference)
+        .def("GetSubkeys", py::overload_cast<std::wstring>(&Hive::GetSubkeys), py::return_value_policy::reference)
+        .def("GetValues", py::overload_cast<std::wstring>(&Hive::GetValues), py::return_value_policy::reference)
         .def("GetValue", &Hive::GetValue, py::return_value_policy::reference)
 
         .def_property_readonly("major", &Hive::GetMajor)
         .def_property_readonly("minor", &Hive::GetMinor)
         ;
 
-    py::class_<NK>(m, "NK")
-
+    py::class_<NK>(m, "Key")
         .def_property_readonly("name", &NK::GetName)
         .def_property_readonly("parent", &NK::GetParent)
+        .def_property_readonly("lastWrite", &NK::GetLastWrite)
+        .def_property_readonly("subkeyCount", &NK::GetSubkeyCount)
+        .def_property_readonly("valueCount", &NK::GetValueCount)
+
+        .def("GetSubkeys", &NK::GetSubkeys, py::return_value_policy::reference)
+        .def("GetValues", &NK::GetValues, py::return_value_policy::reference)
 
         .def("__repr__",
             [](NK& a) {
@@ -34,9 +39,10 @@ PYBIND11_MODULE(reg_parse_v2, m) {
             })
         ;
 
-    py::class_<VK>(m, "VK")
+    py::class_<VK>(m, "Value")
         .def_property_readonly("name", &VK::GetName)
         .def_property_readonly("type", &VK::GetType)
+        .def_property_readonly("data", &VK::GetData)
 
         .def("__repr__",
             [](VK& a) {
